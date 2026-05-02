@@ -8,7 +8,7 @@ from flask import (
 )
 from models import db, User, Station, Train, TrainSeat, Ticket, Payment, Announcement
 
-auth = Blueprint('auth', __name__)
+auth_bp = Blueprint('auth', __name__)
 
 
 def generate_order_no():
@@ -18,7 +18,7 @@ def generate_order_no():
     return f"SH{timestamp}{random_str}"
 
 
-@auth.route('/login', methods=['GET', 'POST'])
+@auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     """用户登录"""
     if request.method == 'POST':
@@ -56,7 +56,7 @@ def login():
     return render_template('client/login.html')
 
 
-@auth.route('/register', methods=['GET', 'POST'])
+@auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     """用户注册"""
     if request.method == 'POST':
@@ -112,7 +112,7 @@ def register():
     return render_template('client/register.html')
 
 
-@auth.route('/logout')
+@auth_bp.route('/logout')
 def logout():
     """用户登出"""
     user_id = session.get('user_id')
@@ -124,7 +124,7 @@ def logout():
     return redirect(url_for('client.index'))
 
 
-@auth.route('/api/stations')
+@auth_bp.route('/api/stations')
 def api_stations():
     """获取站点列表API"""
     query = request.args.get('q', '')

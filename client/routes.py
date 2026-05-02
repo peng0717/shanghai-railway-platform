@@ -8,7 +8,7 @@ from flask import (
 )
 from models import db, User, Station, Train, TrainSeat, TrainStop, SeatType, Ticket, Payment, Announcement
 
-client = Blueprint('client', __name__)
+client_bp = Blueprint('client', __name__)
 
 
 def generate_order_no():
@@ -18,7 +18,7 @@ def generate_order_no():
     return f"SH{timestamp}{random_str}"
 
 
-@client.route('/')
+@client_bp.route('/')
 def index():
     """首页"""
     # 获取最新公告
@@ -38,7 +38,7 @@ def index():
                          provinces=sorted(provinces))
 
 
-@client.route('/search')
+@client_bp.route('/search')
 def search():
     """车次查询"""
     from_station = request.args.get('from', '')
@@ -113,7 +113,7 @@ def search():
                          train_type=train_type)
 
 
-@client.route('/book/<int:train_id>', methods=['GET', 'POST'])
+@client_bp.route('/book/<int:train_id>', methods=['GET', 'POST'])
 def book(train_id):
     """订单确认页面"""
     if 'user_id' not in session:
@@ -194,7 +194,7 @@ def book(train_id):
                          date=date)
 
 
-@client.route('/order/<int:order_id>')
+@client_bp.route('/order/<int:order_id>')
 def order_detail(order_id):
     """订单详情"""
     ticket = Ticket.query.get_or_404(order_id)
@@ -211,7 +211,7 @@ def order_detail(order_id):
     return render_template('client/order_detail.html', ticket=ticket)
 
 
-@client.route('/order/<int:order_id>/pay', methods=['POST'])
+@client_bp.route('/order/<int:order_id>/pay', methods=['POST'])
 def pay_order(order_id):
     """支付订单"""
     ticket = Ticket.query.get_or_404(order_id)
@@ -243,7 +243,7 @@ def pay_order(order_id):
     return redirect(url_for('client.order_detail', order_id=ticket.id))
 
 
-@client.route('/order/<int:order_id>/cancel', methods=['POST'])
+@client_bp.route('/order/<int:order_id>/cancel', methods=['POST'])
 def cancel_order(order_id):
     """取消订单"""
     ticket = Ticket.query.get_or_404(order_id)
@@ -269,7 +269,7 @@ def cancel_order(order_id):
     return redirect(url_for('client.orders'))
 
 
-@client.route('/order/<int:order_id>/refund', methods=['POST'])
+@client_bp.route('/order/<int:order_id>/refund', methods=['POST'])
 def refund_order(order_id):
     """退票"""
     ticket = Ticket.query.get_or_404(order_id)
@@ -326,7 +326,7 @@ def refund_order(order_id):
     return redirect(url_for('client.orders'))
 
 
-@client.route('/orders')
+@client_bp.route('/orders')
 def orders():
     """订单列表"""
     if 'user_id' not in session:
@@ -345,7 +345,7 @@ def orders():
     return render_template('client/orders.html', orders=orders_list, status_filter=status_filter)
 
 
-@client.route('/profile')
+@client_bp.route('/profile')
 def profile():
     """个人中心"""
     if 'user_id' not in session:
@@ -389,7 +389,7 @@ def profile():
     return render_template('client/profile.html', user=user)
 
 
-@client.route('/train/<int:train_id>')
+@client_bp.route('/train/<int:train_id>')
 def train_detail(train_id):
     """车次详情"""
     train = Train.query.get_or_404(train_id)
@@ -398,7 +398,7 @@ def train_detail(train_id):
     return render_template('client/train_detail.html', train=train, stops=stops)
 
 
-@client.route('/timetable')
+@client_bp.route('/timetable')
 def timetable():
     """列车时刻表"""
     train_code = request.args.get('code', '')

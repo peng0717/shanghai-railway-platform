@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from models import db, User
 from functools import wraps
 
-ops_auth = Blueprint('ops_auth', __name__)
+ops_auth_bp = Blueprint('ops_auth', __name__)
 
 
 def ops_login_required(f):
@@ -43,7 +43,7 @@ def log_ops_action(user_id, action, module, detail):
     db.session.commit()
 
 
-@ops_auth.route('/login', methods=['GET', 'POST'])
+@ops_auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     """运营系统登录"""
     if 'ops_user_id' in session:
@@ -83,7 +83,7 @@ def login():
     return render_template('ops/login.html')
 
 
-@ops_auth.route('/logout')
+@ops_auth_bp.route('/logout')
 def logout():
     """运营系统登出"""
     user_id = session.get('ops_user_id')

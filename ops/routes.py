@@ -3,10 +3,10 @@ from models import db, User, Station, Train, TrainStop, TrainSeat, SeatType, Tic
 from ops.auth import ops_login_required, log_ops_action
 from datetime import datetime, timedelta
 
-ops = Blueprint('ops', __name__)
+ops_bp = Blueprint('ops', __name__)
 
 
-@ops.route('/')
+@ops_bp.route('/')
 @ops_login_required
 def dashboard():
     """仪表盘"""
@@ -73,7 +73,7 @@ def dashboard():
                          latest_changes=latest_changes)
 
 
-@ops.route('/trains')
+@ops_bp.route('/trains')
 @ops_login_required
 def trains():
     """车次管理"""
@@ -96,7 +96,7 @@ def trains():
     return render_template('ops/trains.html', trains=trains_list)
 
 
-@ops.route('/trains/new', methods=['GET', 'POST'])
+@ops_bp.route('/trains/new', methods=['GET', 'POST'])
 @ops_login_required
 def train_new():
     """新建车次"""
@@ -133,7 +133,7 @@ def train_new():
     return render_template('ops/train_form.html', train=None, stations=stations)
 
 
-@ops.route('/trains/<int:train_id>/edit', methods=['GET', 'POST'])
+@ops_bp.route('/trains/<int:train_id>/edit', methods=['GET', 'POST'])
 @ops_login_required
 def train_edit(train_id):
     """编辑车次"""
@@ -218,7 +218,7 @@ def train_edit(train_id):
                          seat_types=seat_types)
 
 
-@ops.route('/trains/<int:train_id>/delete', methods=['POST'])
+@ops_bp.route('/trains/<int:train_id>/delete', methods=['POST'])
 @ops_login_required
 def train_delete(train_id):
     """删除车次"""
@@ -241,7 +241,7 @@ def train_delete(train_id):
     return jsonify({'success': True, 'message': '车次已删除'})
 
 
-@ops.route('/stations')
+@ops_bp.route('/stations')
 @ops_login_required
 def stations():
     """站点管理"""
@@ -277,7 +277,7 @@ def stations():
                          search=search)
 
 
-@ops.route('/stations/new', methods=['GET', 'POST'])
+@ops_bp.route('/stations/new', methods=['GET', 'POST'])
 @ops_login_required
 def station_new():
     """新建站点"""
@@ -310,7 +310,7 @@ def station_new():
     return render_template('ops/station_form.html', station=None, provinces=provinces)
 
 
-@ops.route('/stations/<int:station_id>/edit', methods=['GET', 'POST'])
+@ops_bp.route('/stations/<int:station_id>/edit', methods=['GET', 'POST'])
 @ops_login_required
 def station_edit(station_id):
     """编辑站点"""
@@ -334,7 +334,7 @@ def station_edit(station_id):
     return render_template('ops/station_form.html', station=station, provinces=provinces)
 
 
-@ops.route('/tickets')
+@ops_bp.route('/tickets')
 @ops_login_required
 def tickets():
     """票务管理 - 售票记录"""
@@ -361,7 +361,7 @@ def tickets():
     return render_template('ops/tickets.html', tickets=tickets_list)
 
 
-@ops.route('/refunds')
+@ops_bp.route('/refunds')
 @ops_login_required
 def refunds():
     """退票管理"""
@@ -380,7 +380,7 @@ def refunds():
     return render_template('ops/refunds.html', refunds=refunds_list)
 
 
-@ops.route('/refunds/<int:refund_id>/process', methods=['POST'])
+@ops_bp.route('/refunds/<int:refund_id>/process', methods=['POST'])
 @ops_login_required
 def refund_process(refund_id):
     """处理退款"""
@@ -401,7 +401,7 @@ def refund_process(refund_id):
     return jsonify({'success': True, 'message': f'退款已{("批准" if action == "approve" else "拒绝")}'})
 
 
-@ops.route('/users')
+@ops_bp.route('/users')
 @ops_login_required
 def users():
     """用户管理"""
@@ -430,7 +430,7 @@ def users():
     return render_template('ops/users.html', users=users_list)
 
 
-@ops.route('/users/<int:user_id>/toggle', methods=['POST'])
+@ops_bp.route('/users/<int:user_id>/toggle', methods=['POST'])
 @ops_login_required
 def user_toggle(user_id):
     """启用/禁用用户"""
@@ -447,7 +447,7 @@ def user_toggle(user_id):
     return jsonify({'success': True, 'message': f'用户已{"禁用" if user.status == "disabled" else "启用"}'})
 
 
-@ops.route('/announcements')
+@ops_bp.route('/announcements')
 @ops_login_required
 def announcements():
     """公告管理"""
@@ -460,7 +460,7 @@ def announcements():
     return render_template('ops/announcements.html', announcements=announcements_list)
 
 
-@ops.route('/announcements/new', methods=['GET', 'POST'])
+@ops_bp.route('/announcements/new', methods=['GET', 'POST'])
 @ops_login_required
 def announcement_new():
     """新建公告"""
@@ -483,7 +483,7 @@ def announcement_new():
     return render_template('ops/announcement_form.html', announcement=None)
 
 
-@ops.route('/announcements/<int:announcement_id>/edit', methods=['GET', 'POST'])
+@ops_bp.route('/announcements/<int:announcement_id>/edit', methods=['GET', 'POST'])
 @ops_login_required
 def announcement_edit(announcement_id):
     """编辑公告"""
@@ -503,7 +503,7 @@ def announcement_edit(announcement_id):
     return render_template('ops/announcement_form.html', announcement=announcement)
 
 
-@ops.route('/announcements/<int:announcement_id>/delete', methods=['POST'])
+@ops_bp.route('/announcements/<int:announcement_id>/delete', methods=['POST'])
 @ops_login_required
 def announcement_delete(announcement_id):
     """删除公告"""
@@ -517,7 +517,7 @@ def announcement_delete(announcement_id):
     return jsonify({'success': True, 'message': '公告已删除'})
 
 
-@ops.route('/schedule-changes')
+@ops_bp.route('/schedule-changes')
 @ops_login_required
 def schedule_changes():
     """列车调整管理"""
@@ -530,7 +530,7 @@ def schedule_changes():
     return render_template('ops/schedule_changes.html', changes=changes_list)
 
 
-@ops.route('/schedule-changes/new', methods=['GET', 'POST'])
+@ops_bp.route('/schedule-changes/new', methods=['GET', 'POST'])
 @ops_login_required
 def schedule_change_new():
     """新建列车调整"""
@@ -562,7 +562,7 @@ def schedule_change_new():
     return render_template('ops/schedule_change_form.html', change=None, trains=trains)
 
 
-@ops.route('/schedule-changes/<int:change_id>/delete', methods=['POST'])
+@ops_bp.route('/schedule-changes/<int:change_id>/delete', methods=['POST'])
 @ops_login_required
 def schedule_change_delete(change_id):
     """删除列车调整"""
@@ -582,7 +582,7 @@ def schedule_change_delete(change_id):
     return jsonify({'success': True, 'message': '调整信息已删除'})
 
 
-@ops.route('/logs')
+@ops_bp.route('/logs')
 @ops_login_required
 def logs():
     """操作日志"""
