@@ -34,6 +34,7 @@ from jinja2 import FileSystemLoader
 template_dirs = [
     os.path.join(os.path.dirname(__file__), 'client', 'templates'),
     os.path.join(os.path.dirname(__file__), 'ops', 'templates'),
+    os.path.join(os.path.dirname(__file__), 'gate', 'templates'),
 ]
 app = Flask(__name__, template_folder=template_dirs[0])
 app.jinja_loader = FileSystemLoader(template_dirs)
@@ -59,11 +60,15 @@ from client.routes import client_bp
 from client.auth import auth_bp
 from ops.routes import ops_bp
 from ops.auth import ops_auth_bp
+from gate.routes import gate_bp
+from gate.auth import gate_auth_bp
 
 app.register_blueprint(client_bp)  # 客票系统 /
 app.register_blueprint(auth_bp)    # 认证 /
 app.register_blueprint(ops_bp, url_prefix='/ops')    # 运营系统 /ops/
 app.register_blueprint(ops_auth_bp, url_prefix='/ops')  # 运营系统认证
+app.register_blueprint(gate_bp, url_prefix='/gate')   # 闸机检票系统 /gate/
+app.register_blueprint(gate_auth_bp, url_prefix='/gate')  # 闸机系统认证
 
 # 错误页面
 @app.route('/error')
@@ -76,11 +81,12 @@ def ops_error_page():
     from flask import render_template
     return render_template('ops/error.html', message='页面加载失败，请返回首页重试')
 
-# 根路径由client蓝图处理，不再重复注册
+@app.route('/gate/error')
+def gate_error_page():
+    from flask import render_template
+    return render_template('gate/500.html', message='页面加载失败，请返回首页重试')
 
-@app.route('/gate/')
-def gate():
-    return "闸机检票系统（建设中）"
+# 根路径由client蓝图处理，不再重复注册
 
 @app.route('/health')
 def health():
@@ -93,6 +99,9 @@ def not_found(e):
     if request.path.startswith('/ops'):
         from flask import render_template
         return render_template('ops/404.html'), 404
+    if request.path.startswith('/gate'):
+        from flask import render_template
+        return render_template('gate/404.html'), 404
     from flask import render_template
     return render_template('client/404.html'), 404
 
@@ -102,6 +111,9 @@ def server_error(e):
     if request.path.startswith('/ops'):
         from flask import render_template
         return render_template('ops/500.html'), 500
+    if request.path.startswith('/gate'):
+        from flask import render_template
+        return render_template('gate/500.html'), 500
     from flask import render_template
     return render_template('client/500.html'), 500
 
@@ -126,7 +138,7 @@ if __name__ == '__main__':
     print(f"上海局铁路一体化集成平台启动中...")
     print(f"客票系统访问地址: {base_url}/")
     print(f"运营管理系统访问地址: {base_url}/ops/")
-    print(f"闸机检票系统（预留）: {base_url}/gate/")
+    print(f"闸机检票系统访问地址: {base_url}/gate/")
     print("-" * 50)
     
     app.run(host='0.0.0.0', port=port, debug=False)

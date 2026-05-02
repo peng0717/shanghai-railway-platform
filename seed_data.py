@@ -963,3 +963,172 @@ def load_seed_data(db):
     print(f"停站总数: {stop_count}")
     print(f"公告总数: {len(Announcement.query.all())}")
     print(f"========================================\n")
+
+    # ============== 闸机设备种子数据 ==============
+    from models import Gate, CheckPlan
+    from datetime import datetime, timedelta
+    
+    # 闸机设备配置：每个车站的闸机列表
+    gate_configs = [
+        # 上海虹桥：8台入站闸机
+        ('SHH', 'SHH-G01', '上海虹桥1号检票口A闸机', 'entry', 'B1层东侧1号口'),
+        ('SHH', 'SHH-G02', '上海虹桥1号检票口B闸机', 'entry', 'B1层东侧2号口'),
+        ('SHH', 'SHH-G03', '上海虹桥1号检票口C闸机', 'entry', 'B1层东侧3号口'),
+        ('SHH', 'SHH-G04', '上海虹桥1号检票口D闸机', 'entry', 'B1层东侧4号口'),
+        ('SHH', 'SHH-G05', '上海虹桥2号检票口A闸机', 'entry', 'B1层西侧1号口'),
+        ('SHH', 'SHH-G06', '上海虹桥2号检票口B闸机', 'entry', 'B1层西侧2号口'),
+        ('SHH', 'SHH-G07', '上海虹桥2号检票口C闸机', 'entry', 'B1层西侧3号口'),
+        ('SHH', 'SHH-G08', '上海虹桥2号检票口D闸机', 'entry', 'B1层西侧4号口'),
+        
+        # 上海站：4台入站闸机
+        ('SHA', 'SHA-G01', '上海站1号检票口A闸机', 'entry', '1层南侧1号口'),
+        ('SHA', 'SHA-G02', '上海站1号检票口B闸机', 'entry', '1层南侧2号口'),
+        ('SHA', 'SHA-G03', '上海站2号检票口A闸机', 'entry', '1层北侧1号口'),
+        ('SHA', 'SHA-G04', '上海站2号检票口B闸机', 'entry', '1层北侧2号口'),
+        
+        # 南京南：6台入站闸机
+        ('NKH', 'NKH-G01', '南京南1号检票口A闸机', 'entry', '2层东侧1号口'),
+        ('NKH', 'NKH-G02', '南京南1号检票口B闸机', 'entry', '2层东侧2号口'),
+        ('NKH', 'NKH-G03', '南京南1号检票口C闸机', 'entry', '2层东侧3号口'),
+        ('NKH', 'NKH-G04', '南京南2号检票口A闸机', 'entry', '2层西侧1号口'),
+        ('NKH', 'NKH-G05', '南京南2号检票口B闸机', 'entry', '2层西侧2号口'),
+        ('NKH', 'NKH-G06', '南京南2号检票口C闸机', 'entry', '2层西侧3号口'),
+        
+        # 杭州东：6台入站闸机
+        ('HZN', 'HZN-G01', '杭州东1号检票口A闸机', 'entry', '3层东侧1号口'),
+        ('HZN', 'HZN-G02', '杭州东1号检票口B闸机', 'entry', '3层东侧2号口'),
+        ('HZN', 'HZN-G03', '杭州东1号检票口C闸机', 'entry', '3层东侧3号口'),
+        ('HZN', 'HZN-G04', '杭州东2号检票口A闸机', 'entry', '3层西侧1号口'),
+        ('HZN', 'HZN-G05', '杭州东2号检票口B闸机', 'entry', '3层西侧2号口'),
+        ('HZN', 'HZN-G06', '杭州东2号检票口C闸机', 'entry', '3层西侧3号口'),
+        
+        # 合肥南：4台入站闸机
+        ('HFN', 'HFN-G01', '合肥南1号检票口A闸机', 'entry', '2层东侧1号口'),
+        ('HFN', 'HFN-G02', '合肥南1号检票口B闸机', 'entry', '2层东侧2号口'),
+        ('HFN', 'HFN-G03', '合肥南2号检票口A闸机', 'entry', '2层西侧1号口'),
+        ('HFN', 'HFN-G04', '合肥南2号检票口B闸机', 'entry', '2层西侧2号口'),
+        
+        # 苏州北：2台入站闸机
+        ('SBN', 'SBN-G01', '苏州北1号检票口A闸机', 'entry', '2层东侧1号口'),
+        ('SBN', 'SBN-G02', '苏州北1号检票口B闸机', 'entry', '2层东侧2号口'),
+        
+        # 无锡东：2台入站闸机
+        ('WXD', 'WXD-G01', '无锡东1号检票口A闸机', 'entry', '2层东侧1号口'),
+        ('WXD', 'WXD-G02', '无锡东1号检票口B闸机', 'entry', '2层东侧2号口'),
+        
+        # 徐州东：4台入站闸机
+        ('XZN', 'XZN-G01', '徐州东1号检票口A闸机', 'entry', '2层东侧1号口'),
+        ('XZN', 'XZN-G02', '徐州东1号检票口B闸机', 'entry', '2层东侧2号口'),
+        ('XZN', 'XZN-G03', '徐州东2号检票口A闸机', 'entry', '2层西侧1号口'),
+        ('XZN', 'XZN-G04', '徐州东2号检票口B闸机', 'entry', '2层西侧2号口'),
+        
+        # 宁波：2台入站闸机
+        ('NBH', 'NBH-G01', '宁波1号检票口A闸机', 'entry', '2层东侧1号口'),
+        ('NBH', 'NBH-G02', '宁波1号检票口B闸机', 'entry', '2层东侧2号口'),
+        
+        # 温州南：2台入站闸机
+        ('WWN', 'WWN-G01', '温州南1号检票口A闸机', 'entry', '2层东侧1号口'),
+        ('WWN', 'WWN-G02', '温州南1号检票口B闸机', 'entry', '2层东侧2号口'),
+    ]
+    
+    # 创建闸机设备
+    gates_created = []
+    for station_code, gate_code, gate_name, gate_type, location in gate_configs:
+        # 检查是否已存在
+        if Gate.query.filter_by(gate_code=gate_code).first():
+            continue
+        
+        station = Station.query.filter_by(station_code=station_code).first()
+        if not station:
+            continue
+        
+        gate = Gate(
+            gate_code=gate_code,
+            gate_name=gate_name,
+            station_id=station.id,
+            gate_type=gate_type,
+            location=location,
+            status='online',
+            last_heartbeat=datetime.now()
+        )
+        db.session.add(gate)
+        gates_created.append(gate)
+    
+    db.session.commit()
+    print(f"闸机设备创建: {len(gates_created)} 台")
+    
+    # ============== 检票计划种子数据 ==============
+    # 为当天有效车次创建检票计划
+    today = datetime.now().strftime('%Y-%m-%d')
+    
+    # 获取当天有车票的车次
+    trains_with_tickets = db.session.query(Train).join(
+        Ticket, Ticket.train_id == Train.id
+    ).filter(
+        Ticket.departure_date == today,
+        Ticket.status.in_(['paid', 'used'])
+    ).distinct().limit(20).all()
+    
+    check_plans_created = 0
+    for train in trains_with_tickets:
+        # 获取始发站
+        if not train.start_station_id:
+            continue
+        
+        # 计算检票时间：开车前30分钟到前5分钟
+        dep_parts = train.departure_time.split(':')
+        dep_minutes = int(dep_parts[0]) * 60 + int(dep_parts[1])
+        
+        start_minutes = dep_minutes - 30
+        end_minutes = dep_minutes - 5
+        
+        start_hour = start_minutes // 60
+        start_min = start_minutes % 60
+        end_hour = end_minutes // 60
+        end_min = end_minutes % 60
+        
+        check_start_time = f"{start_hour:02d}:{start_min:02d}"
+        check_end_time = f"{end_hour:02d}:{end_min:02d}"
+        
+        # 获取该车次的闸机
+        station = Station.query.get(train.start_station_id)
+        station_gates = Gate.query.filter_by(station_id=train.start_station_id).limit(4).all()
+        gate_ids = ','.join([str(g.id) for g in station_gates]) if station_gates else ''
+        
+        # 检查是否已存在相同计划
+        existing = CheckPlan.query.filter_by(
+            train_id=train.id,
+            station_id=train.start_station_id,
+            effective_date=today
+        ).first()
+        
+        if existing:
+            continue
+        
+        # 创建检票计划
+        plan = CheckPlan(
+            train_id=train.id,
+            station_id=train.start_station_id,
+            gate_ids=gate_ids,
+            check_start_time=check_start_time,
+            check_end_time=check_end_time,
+            effective_date=today,
+            status='pending',
+            created_by=admin.id
+        )
+        db.session.add(plan)
+        check_plans_created += 1
+    
+    db.session.commit()
+    print(f"检票计划创建: {check_plans_created} 个")
+    
+    # 更新统计信息
+    print(f"\\n========== 数据库初始化统计 ==========")
+    print(f"席别种类: {len(SeatType.query.all())}")
+    print(f"站点总数: {len(stations)}")
+    print(f"车次总数: {len(trains_created)}")
+    print(f"停站总数: {stop_count}")
+    print(f"公告总数: {len(Announcement.query.all())}")
+    print(f"闸机总数: {len(Gate.query.all())}")
+    print(f"检票计划: {len(CheckPlan.query.all())}")
+    print(f"========================================\\n")

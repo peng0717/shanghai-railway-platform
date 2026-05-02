@@ -1,0 +1,120 @@
+{% extends "gate/base.html" %}
+
+{% block title %}人工复核 - 闸机检票系统{% endblock %}
+
+{% block content %}
+<div class="gate-page-header">
+    <h4 class="mb-0">
+        <i class="bi bi-person-check me-2"></i>人工复核
+    </h4>
+</div>
+
+<div class="card gate-card">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class="bi bi-list-check me-2"></i>待复核记录
+        </h6>
+    </div>
+    <div class="card-body">
+        {% if pending_reviews %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>旅客姓名</th>
+                        <th>身份证号</th>
+                        <th>车次</th>
+                        <th>检票方式</th>
+                        <th>检票时间</th>
+                        <th>闸机</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for check in pending_reviews %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ check.passenger_name or '-' }}</td>
+                        <td>{{ check.passenger_id_card or '-' }}</td>
+                        <td>
+                            <span class="train-code">{{ check.train_code or '-' }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary">
+                                {{ '身份证' if check.check_method == 'id_card' else '订单号' }}
+                            </span>
+                        </td>
+                        <td>{{ check.checked_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            {% if check.gate %}
+                            {{ check.gate.gate_code }}
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form method="POST" action="/gate/manual-review/{{ check.id }}/approve" 
+                                  class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    <i class="bi bi-check-circle me-1"></i>放行
+                                </button>
+                            </form>
+                            <button type="button" class="btn btn-sm btn-danger" 
+                                    onclick="showRejectModal({{ check.id }})">
+                                <i class="bi bi-x-circle me-1"></i>拒绝
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="bi bi-check-circle fs-1 d-block mb-3 text-success"></i>
+            <h5>暂无待复核记录</h5>
+            <p class="small">所有异常检票记录已处理完毕</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- 拒绝原因模态框 -->
+<div class="modal fade" id="rejectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-x-circle me-2 text-danger"></i>人工拒绝
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" id="rejectForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">拒绝原因</label>
+                        <textarea class="form-control" name="reason" rows="3" 
+                                  placeholder="请输入拒绝原因" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-danger">确认拒绝</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showRejectModal(checkId) {
+    const modal = new bootstrap.Modal(document.getElementById('rejectModal'));
+    document.getElementById('rejectForm').action = '/gate/manual-review/' + checkId + '/reject';
+    modal.show();
+}
+</script>
+{% endblock %}

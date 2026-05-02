@@ -1,0 +1,48 @@
+{% extends "gate/base.html" %}
+
+{% block title %}登录 - 上海局闸机检票系统{% endblock %}
+
+{% block content %}
+<div class="gate-login-container">
+    <div class="gate-login-card">
+        <div class="text-center mb-4">
+            <svg viewBox="0 0 40 40" width="60" height="60" class="mb-3">
+                <circle cx="20" cy="20" r="19" fill="#C4161C" stroke="none"/>
+                <path d="M20 6 L12 28 L16 28 L20 16 L24 28 L28 28 Z" fill="white"/>
+                <rect x="10" y="29" width="20" height="3" rx="1" fill="white"/>
+            </svg>
+            <h4 class="mb-1">上海局闸机检票系统</h4>
+            <p class="text-muted small">请使用职工账号登录</p>
+        </div>
+        
+        <form method="POST" action="/gate/login">
+            <div class="mb-3">
+                <label class="form-label">
+                    <i class="bi bi-person me-1"></i>用户名
+                </label>
+                <input type="text" class="form-control" name="username" 
+                       placeholder="请输入用户名" required autofocus>
+            </div>
+            
+            <div class="mb-4">
+                <label class="form-label">
+                    <i class="bi bi-lock me-1"></i>密码
+                </label>
+                <input type="password" class="form-control" name="password" 
+                       placeholder="请输入密码" required>
+            </div>
+            
+            <button type="submit" class="btn btn-gate w-100">
+                <i class="bi bi-box-arrow-in-right me-2"></i>登录系统
+            </button>
+        </form>
+        
+        <div class="mt-4 text-center text-muted small">
+            <p class="mb-1">仅限铁路职工访问</p>
+            <a href="/" class="text-muted">
+                <i class="bi bi-arrow-left me-1"></i>返回客票系统
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

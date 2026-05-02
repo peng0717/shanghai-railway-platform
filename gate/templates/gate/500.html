@@ -1,0 +1,21 @@
+{% extends "gate/base.html" %}
+
+{% block title %}500 - 服务器错误{% endblock %}
+
+{% block content %}
+<div class="gate-error-page">
+    <div class="gate-error-content">
+        <div class="gate-error-icon text-danger">
+            <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        <h1 class="gate-error-code">500</h1>
+        <h4 class="gate-error-title">服务器错误</h4>
+        <p class="gate-error-message">
+            抱歉，服务器遇到了意外情况，请稍后重试
+        </p>
+        <a href="/gate/" class="btn btn-gate">
+            <i class="bi bi-house me-2"></i>返回首页
+        </a>
+    </div>
+</div>
+{% endblock %}

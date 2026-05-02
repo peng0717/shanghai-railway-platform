@@ -1,0 +1,98 @@
+{% extends "gate/base.html" %}
+
+{% block title %}{{ '编辑检票计划' if gate else '新建检票计划' }} - 闸机检票系统{% endblock %}
+
+{% block content %}
+<div class="gate-page-header">
+    <h4 class="mb-0">
+        <i class="bi bi-calendar-plus me-2"></i>{{ '编辑检票计划' if plan else '新建检票计划' }}
+    </h4>
+</div>
+
+<div class="card gate-card">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="form-label">选择车次 <span class="text-danger">*</span></label>
+                    <select class="form-select" name="train_id" required>
+                        <option value="">请选择车次</option>
+                        {% for train in trains %}
+                        <option value="{{ train.id }}">
+                            {{ train.train_code }} - {{ train.start_station.station_name if train.start_station else '' }} -> {{ train.end_station.station_name if train.end_station else '' }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label">检票车站 <span class="text-danger">*</span></label>
+                    <select class="form-select" name="station_id" required>
+                        <option value="">请选择车站</option>
+                        {% for station in stations %}
+                        <option value="{{ station.id }}">{{ station.station_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label">检票开始时间 <span class="text-danger">*</span></label>
+                    <input type="time" class="form-control" name="check_start_time" 
+                           value="{{ '08:00' }}" required>
+                    <small class="text-muted">一般设置为开车前30分钟</small>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label">检票结束时间 <span class="text-danger">*</span></label>
+                    <input type="time" class="form-control" name="check_end_time" 
+                           value="{{ '09:25' }}" required>
+                    <small class="text-muted">一般设置为开车前5分钟</small>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label">生效日期 <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" name="effective_date" 
+                           value="{{ today }}" required>
+                    <small class="text-muted">设为"daily"表示每天生效</small>
+                </div>
+                
+                <div class="col-12">
+                    <label class="form-label">分配闸机</label>
+                    <div class="gate-selector">
+                        {% for station_name, data in gates_by_station.items() %}
+                        <div class="gate-selector-group">
+                            <h7 class="gate-selector-title">
+                                <i class="bi bi-geo-alt me-1"></i>{{ station_name }}
+                            </h7>
+                            <div class="gate-checkbox-list">
+                                {% for gate in data.gates %}
+                                <label class="gate-checkbox-item">
+                                    <input type="checkbox" name="gate_ids" value="{{ gate.id }}">
+                                    <span class="gate-checkbox-code">{{ gate.gate_code }}</span>
+                                    <span class="gate-checkbox-name">{{ gate.gate_name }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="text-muted">
+                            暂无可用闸机，请先 <a href="/gate/gates/new">添加闸机</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="col-12">
+                    <hr>
+                    <button type="submit" class="btn btn-gate">
+                        <i class="bi bi-check-lg me-2"></i>保存检票计划
+                    </button>
+                    <a href="/gate/check-plans" class="btn btn-outline-secondary ms-2">
+                        <i class="bi bi-x-lg me-2"></i>取消
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

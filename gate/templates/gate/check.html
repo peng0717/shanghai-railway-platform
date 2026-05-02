@@ -1,0 +1,351 @@
+{% extends "gate/base.html" %}
+
+{% block title %}检票操作台 - 闸机检票系统{% endblock %}
+
+{% block extra_css %}
+<style>
+.check-screen {
+    background: linear-gradient(135deg, #1A2E2A 0%, #2D4A45 100%);
+    min-height: calc(100vh - 120px);
+    border-radius: 20px;
+    padding: 30px;
+    color: white;
+}
+
+.check-title {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.check-title h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.current-train-info {
+    background: rgba(255,255,255,0.1);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.train-display {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #00B894;
+}
+
+.train-route {
+    font-size: 1.2rem;
+    color: #ddd;
+}
+
+.train-time {
+    display: inline-block;
+    background: #00B894;
+    color: white;
+    padding: 5px 20px;
+    border-radius: 20px;
+    margin-top: 10px;
+}
+
+.check-input-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.check-input-card {
+    background: rgba(255,255,255,0.95);
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    color: #2D3436;
+}
+
+.check-input-card h5 {
+    color: #1A2E2A;
+    margin-bottom: 20px;
+}
+
+.check-input-card input {
+    font-size: 1.5rem;
+    text-align: center;
+    padding: 15px;
+    border: 2px solid #00B894;
+    border-radius: 10px;
+}
+
+.check-btn {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    background: #00B894;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    margin-top: 15px;
+    transition: all 0.3s;
+}
+
+.check-btn:hover {
+    background: #00a884;
+    transform: scale(1.02);
+}
+
+/* 检票结果区域 */
+.result-area {
+    min-height: 200px;
+    border-radius: 15px;
+    padding: 40px;
+    text-align: center;
+    margin-bottom: 30px;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.result-pass {
+    background: linear-gradient(135deg, #00B894 0%, #00cec9 100%);
+    animation: passGlow 1.5s ease infinite alternate;
+}
+
+@keyframes passGlow {
+    from { box-shadow: 0 0 20px rgba(0, 184, 148, 0.5); }
+    to { box-shadow: 0 0 40px rgba(0, 184, 148, 0.8); }
+}
+
+.result-reject {
+    background: linear-gradient(135deg, #E17055 0%, #d63031 100%);
+    animation: rejectGlow 0.5s ease infinite alternate;
+}
+
+@keyframes rejectGlow {
+    from { box-shadow: 0 0 20px rgba(225, 112, 85, 0.5); }
+    to { box-shadow: 0 0 40px rgba(225, 112, 85, 0.8); }
+}
+
+.result-icon {
+    font-size: 6rem;
+    margin-bottom: 20px;
+}
+
+.result-message {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.result-detail {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+
+.ticket-info {
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 20px;
+}
+
+/* 底部流水 */
+.bottom-flow {
+    background: rgba(0,0,0,0.3);
+    border-radius: 15px;
+    padding: 20px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.flow-title {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    color: #00B894;
+}
+
+.flow-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    background: rgba(255,255,255,0.1);
+}
+
+.flow-icon {
+    font-size: 1.5rem;
+    margin-right: 15px;
+}
+
+.flow-pass .flow-icon { color: #00B894; }
+.flow-reject .flow-icon { color: #E17055; }
+
+.flow-info {
+    flex: 1;
+}
+
+.flow-name {
+    font-weight: bold;
+}
+
+.flow-meta {
+    font-size: 0.85rem;
+    color: #aaa;
+}
+
+.flow-time {
+    font-size: 0.85rem;
+    color: #888;
+}
+
+/* 隐藏默认的结果显示 */
+.default-check-form {
+    display: none;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="check-screen">
+    <div class="check-title">
+        <h2><i class="bi bi-qr-code-scan me-2"></i>闸机检票操作台</h2>
+        <p class="text-muted mb-0">请刷身份证或输入订单号进行检票</p>
+    </div>
+    
+    <!-- 当前检票车次信息 -->
+    {% if checking_plans %}
+    <div class="current-train-info">
+        <div class="train-display">
+            {% for plan in checking_plans[:1] %}
+            {{ plan.train.train_code if plan.train else '' }}
+            {% endfor %}
+        </div>
+        <div class="train-route">
+            {% for plan in checking_plans[:1] %}
+            {{ plan.train.start_station.station_name if plan.train.start_station else '' }} - {{ plan.train.end_station.station_name if plan.train.end_station else '' }}
+            <span class="train-time">
+                {{ plan.check_start_time }} - {{ plan.check_end_time }}
+            </span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if result %}
+    <!-- 显示检票结果 -->
+    <div class="result-area {{ 'result-pass' if result == 'pass' else 'result-reject' }}">
+        <div class="result-icon">
+            <i class="bi bi-{{ 'check-circle-fill' if result == 'pass' else 'x-circle-fill' }}"></i>
+        </div>
+        <div class="result-message">
+            {{ '请通行' if result == 'pass' else '禁止通行' }}
+        </div>
+        
+        {% if ticket %}
+        <div class="ticket-info">
+            <div><strong>{{ ticket.passenger_name }}</strong></div>
+            <div>{{ ticket.train.train_code if ticket.train else '' }} {{ ticket.from_station.station_name if ticket.from_station else '' }} - {{ ticket.to_station.station_name if ticket.to_station else '' }}</div>
+            <div>{{ ticket.seat_type.name if ticket.seat_type else '' }} {{ ticket.car_number }}-{{ ticket.seat_number }}</div>
+        </div>
+        {% endif %}
+        
+        {% if reject_reason %}
+        <div class="result-detail mt-3">
+            {{ reject_reason }}
+        </div>
+        {% endif %}
+        
+        <div class="mt-4">
+            <a href="/gate/check" class="btn btn-light btn-lg">
+                <i class="bi bi-arrow-clockwise me-2"></i>继续检票
+            </a>
+        </div>
+    </div>
+    {% else %}
+    <!-- 检票输入表单 -->
+    <form method="POST" action="/gate/check" class="check-form">
+        <!-- 选择闸机和检票计划 -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <label class="form-label text-white">选择闸机</label>
+                <select class="form-select" name="gate_id" required>
+                    <option value="">请选择闸机</option>
+                    {% for gate in gates %}
+                    <option value="{{ gate.id }}">{{ gate.gate_code }} - {{ gate.gate_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label text-white">当前检票计划</label>
+                <select class="form-select" name="check_plan_id">
+                    <option value="">不指定计划</option>
+                    {% for plan in checking_plans %}
+                    <option value="{{ plan.id }}">{{ plan.train.train_code if plan.train else '' }} ({{ plan.check_start_time }}-{{ plan.check_end_time }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        
+        <div class="check-input-section">
+            <!-- 身份证检票 -->
+            <div class="check-input-card">
+                <h5><i class="bi bi-credit-card-fill me-2"></i>身份证检票</h5>
+                <input type="text" class="form-control" name="id_card" 
+                       placeholder="请刷身份证或输入身份证号"
+                       maxlength="18" autocomplete="off">
+                <input type="hidden" name="check_method" value="id_card">
+                <button type="submit" class="check-btn">
+                    <i class="bi bi-check-lg me-2"></i>确认检票
+                </button>
+            </div>
+            
+            <!-- 订单号检票 -->
+            <div class="check-input-card">
+                <h5><i class="bi bi-qr-code me-2"></i>订单号检票</h5>
+                <input type="text" class="form-control" name="order_no" 
+                       placeholder="请输入订单号"
+                       autocomplete="off">
+                <input type="hidden" name="check_method" value="qrcode">
+                <button type="submit" class="check-btn">
+                    <i class="bi bi-check-lg me-2"></i>确认检票
+                </button>
+            </div>
+        </div>
+    </form>
+    {% endif %}
+    
+    <!-- 底部检票流水 -->
+    <div class="bottom-flow">
+        <div class="flow-title">
+            <i class="bi bi-list-ul me-2"></i>最近检票记录
+        </div>
+        {% for check in recent_checks %}
+        <div class="flow-item flow-{{ 'pass' if check.check_result == 'pass' else 'reject' }}">
+            <div class="flow-icon">
+                <i class="bi bi-{{ 'check-circle-fill' if check.check_result == 'pass' else 'x-circle-fill' }}"></i>
+            </div>
+            <div class="flow-info">
+                <div class="flow-name">{{ check.passenger_name or '未知旅客' }}</div>
+                <div class="flow-meta">
+                    {{ check.train_code or '' }} | {{ '身份证' if check.check_method == 'id_card' else '订单号' }}
+                </div>
+            </div>
+            <div class="flow-time">
+                {{ check.checked_at.strftime('%H:%M:%S') }}
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-3">
+            暂无检票记录
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

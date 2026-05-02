@@ -1,0 +1,207 @@
+{% extends "gate/base.html" %}
+
+{% block title %}实时监控台 - 闸机检票系统{% endblock %}
+
+{% block content %}
+<div class="gate-page-header">
+    <h4 class="mb-0">
+        <i class="bi bi-display me-2"></i>实时监控台
+    </h4>
+    <small class="text-muted">{{ now.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+</div>
+
+<!-- 顶部统计卡片 -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card stat-card-primary">
+            <div class="stat-icon">
+                <i class="bi bi-ticket-perforated"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ total_today }}</div>
+                <div class="stat-label">今日检票量</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-card-success">
+            <div class="stat-icon">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ pass_rate }}%</div>
+                <div class="stat-label">今日通行率</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-card-danger">
+            <div class="stat-icon">
+                <i class="bi bi-x-circle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ reject_count }}</div>
+                <div class="stat-label">今日异常数</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-card-info">
+            <div class="stat-icon">
+                <i class="bi bi、集-集"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ online_gates }}/{{ total_gates }}</div>
+                <div class="stat-label">在线闸机数</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- 左侧：闸机状态矩阵 -->
+    <div class="col-lg-8">
+        <div class="card gate-card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi集-waypoint me-2"></i>闸机状态矩阵
+                </h6>
+            </div>
+            <div class="card-body">
+                {% for station_name, data in gates_by_station.items() %}
+                <div class="gate-station-group">
+                    <h7 class="gate-station-name">
+                        <i class="bi bi-geo-alt me-1"></i>{{ station_name }}
+                    </h7>
+                    <div class="gate-grid">
+                        {% for gate in data.gates %}
+                        <div class="gate-item gate-status-{{ gate.status }}" 
+                             title="{{ gate.gate_name }} ({{ gate.location }})">
+                            <span class="gate-code">{{ gate.gate_code }}</span>
+                            <span class="gate-indicator">
+                                <i class="bi bi-{{ 'lightning-fill' if gate.status == 'online' else 'wifi-off' if gate.status == 'offline' else 'wrench' if gate.status == 'maintenance' else 'exclamation-triangle-fill' }}"></i>
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <div class="gate-legend mt-3">
+                    <span class="legend-item">
+                        <span class="legend-dot legend-online"></span>在线
+                    </span>
+                    <span class="legend-item">
+                        <span class="legend-dot legend-offline"></span>离线
+                    </span>
+                    <span class="legend-item">
+                        <span class="legend-dot legend-maintenance"></span>维护
+                    </span>
+                    <span class="legend-item">
+                        <span class="legend-dot legend-fault"></span>故障
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 当前检票车次 -->
+        <div class="card gate-card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-train-front me-2"></i>当前检票车次
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if checking_trains %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>车次</th>
+                                <th>始发-终到</th>
+                                <th>检票站</th>
+                                <th>检票时间</th>
+                                <th>已检/进度</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in checking_trains %}
+                            <tr>
+                                <td>
+                                    <span class="train-code">{{ item.train.train_code }}</span>
+                                </td>
+                                <td>
+                                    {{ item.train.start_station.station_name }} - {{ item.train.end_station.station_name }}
+                                </td>
+                                <td>{{ item.station.station_name }}</td>
+                                <td>
+                                    {{ item.plan.check_start_time }} - {{ item.plan.check_end_time }}
+                                </td>
+                                <td>
+                                    <span class="text-success">{{ item.checked_count }}</span>
+                                    <span class="text-muted">人</span>
+                                </td>
+                                <td>
+                                    <a href="/gate/check-plans/{{ item.plan.id }}/finish" 
+                                       class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('确定结束该车次检票？')">
+                                        <i class="bi bi-stop-circle me-1"></i>结束
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                    当前无车次在检票中
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- 右侧：实时检票流水 -->
+    <div class="col-lg-4">
+        <div class="card gate-card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-list-ul me-2"></i>实时检票流水
+                </h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="check-flow-list">
+                    {% for check in recent_checks %}
+                    <div class="check-flow-item {% if check.check_result == 'pass' %}check-pass{% else %}check-reject{% endif %}">
+                        <div class="check-flow-icon">
+                            <i class="bi bi-{{ 'check-circle-fill' if check.check_result == 'pass' else 'x-circle-fill' }}"></i>
+                        </div>
+                        <div class="check-flow-content">
+                            <div class="check-flow-main">
+                                <span class="check-name">{{ check.passenger_name or '未知' }}</span>
+                                <span class="check-train">{{ check.train_code or '' }}</span>
+                            </div>
+                            <div class="check-flow-meta">
+                                <span class="check-time">{{ check.checked_at.strftime('%H:%M:%S') }}</span>
+                                <span class="check-method">
+                                    <i class="bi bi-{{ 'credit-card-fill' if check.check_method == 'id_card' else 'qr-code' }}"></i>
+                                    {{ '身份证' if check.check_method == 'id_card' else '订单号' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        暂无检票记录
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

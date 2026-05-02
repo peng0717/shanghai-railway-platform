@@ -1,0 +1,406 @@
+/* 闸机检票系统专用样式 */
+
+:root {
+    --gate-primary: #00B894;
+    --gate-dark: #1A2E2A;
+    --gate-bg: #F0F4F3;
+    --gate-success: #00B894;
+    --gate-danger: #E17055;
+    --gate-warning: #FDCB6E;
+}
+
+/* 全局样式 */
+body {
+    background-color: var(--gate-bg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* 导航栏 */
+.gate-navbar {
+    background-color: var(--gate-dark) !important;
+    padding: 0.8rem 1rem;
+}
+
+.gate-navbar .navbar-brand {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+/* 侧边栏 */
+.sidebar {
+    min-height: calc(100vh - 60px);
+    background: white !important;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+}
+
+.sidebar .nav-link {
+    color: #495057;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    margin: 0.2rem 0.5rem;
+    transition: all 0.2s;
+}
+
+.sidebar .nav-link:hover {
+    background-color: rgba(0, 184, 148, 0.1);
+    color: var(--gate-primary);
+}
+
+.sidebar .nav-link.active {
+    background-color: var(--gate-primary);
+    color: white;
+}
+
+.sidebar .nav-link i {
+    width: 24px;
+}
+
+/* 主内容区 */
+.main-content {
+    padding-top: 1.5rem;
+}
+
+/* 页面标题 */
+.gate-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+/* 卡片样式 */
+.gate-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    overflow: hidden;
+}
+
+.gate-card .card-header {
+    background: white;
+    border-bottom: 1px solid #e9ecef;
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+}
+
+.gate-card .card-body {
+    padding: 1.25rem;
+}
+
+/* 主按钮 */
+.btn-gate {
+    background-color: var(--gate-primary);
+    color: white;
+    border: none;
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-gate:hover {
+    background-color: #00a884;
+    color: white;
+    transform: translateY(-1px);
+}
+
+/* 统计卡片 */
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin-right: 1rem;
+}
+
+.stat-icon i {
+    color: white;
+}
+
+.stat-card-primary .stat-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+.stat-card-success .stat-icon { background: linear-gradient(135deg, #00B894 0%, #00cec9 100%); }
+.stat-card-danger .stat-icon { background: linear-gradient(135deg, #E17055 0%, #d63031 100%); }
+.stat-card-info .stat-icon { background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%); }
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2D3436;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #888;
+    margin-top: 0.3rem;
+}
+
+/* 闸机状态矩阵 */
+.gate-station-group {
+    margin-bottom: 1.5rem;
+}
+
+.gate-station-group:last-child {
+    margin-bottom: 0;
+}
+
+.gate-station-name {
+    color: #2D3436;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+}
+
+.gate-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.gate-item {
+    width: 80px;
+    height: 70px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.gate-item:hover {
+    transform: scale(1.05);
+}
+
+.gate-code {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: white;
+}
+
+.gate-indicator {
+    font-size: 1.2rem;
+    margin-top: 5px;
+}
+
+.gate-status-online { background: linear-gradient(135deg, #00B894 0%, #00cec9 100%); color: white; }
+.gate-status-offline { background: #b2bec3; color: white; }
+.gate-status-maintenance { background: #FDCB6E; color: #2D3436; }
+.gate-status-fault { background: #E17055; color: white; }
+
+.gate-legend {
+    display: flex;
+    gap: 20px;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+
+.legend-online { background: #00B894; }
+.legend-offline { background: #b2bec3; }
+.legend-maintenance { background: #FDCB6E; }
+.legend-fault { background: #E17055; }
+
+/* 检票流水列表 */
+.check-flow-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.check-flow-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s;
+}
+
+.check-flow-item:hover {
+    background: #f8f9fa;
+}
+
+.check-flow-icon {
+    font-size: 1.5rem;
+    margin-right: 12px;
+}
+
+.check-pass .check-flow-icon { color: var(--gate-success); }
+.check-reject .check-flow-icon { color: var(--gate-danger); }
+
+.check-flow-content {
+    flex: 1;
+}
+
+.check-flow-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.check-name {
+    font-weight: 500;
+    color: #2D3436;
+}
+
+.check-train {
+    font-size: 0.85rem;
+    color: var(--gate-primary);
+    font-weight: 500;
+}
+
+.check-flow-meta {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 3px;
+}
+
+.check-method {
+    margin-left: 10px;
+}
+
+/* 车次代码样式 */
+.train-code {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--gate-primary), #00cec9);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.train-code-lg {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--gate-primary), #00cec9);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+/* 闸机编号徽章 */
+.gate-code-badge {
+    display: inline-block;
+    background: var(--gate-dark);
+    color: white;
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+/* 登录页面 */
+.gate-login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--gate-dark) 0%, #2D4A45 100%);
+    padding: 20px;
+}
+
+.gate-login-card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+/* 错误页面 */
+.gate-error-page {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gate-error-content {
+    text-align: center;
+}
+
+.gate-error-icon {
+    font-size: 6rem;
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+.gate-error-code {
+    font-size: 5rem;
+    font-weight: 700;
+    color: var(--gate-primary);
+    margin-bottom: 10px;
+}
+
+.gate-error-title {
+    color: #2D3436;
+    margin-bottom: 15px;
+}
+
+.gate-error-message {
+    color: #888;
+    margin-bottom: 30px;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .sidebar {
+        min-height: auto;
+        border-right: none !important;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .main-content {
+        padding-top: 1rem;
+    }
+    
+    .gate-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+}

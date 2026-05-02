@@ -1,0 +1,307 @@
+{% extends "gate/base.html" %}
+
+{% block title %}统计报表 - 闸机检票系统{% endblock %}
+
+{% block content %}
+<div class="gate-page-header">
+    <h4 class="mb-0">
+        <i class="bi bi-bar-chart me-2"></i>统计报表
+    </h4>
+</div>
+
+<!-- 统计卡片 -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card stat-card-primary">
+            <div class="stat-icon">
+                <i class="bi bi-ticket-perforated"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ today_total }}</div>
+                <div class="stat-label">今日检票量</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-card-success">
+            <div class="stat-icon">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ today_pass }}</div>
+                <div class="stat-label">今日通行</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-card-danger">
+            <div class="stat-icon">
+                <i class="bi bi-x-circle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ today_reject }}</div>
+                <div class="stat-label">今日拒绝</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card stat-card-info">
+            <div class="stat-icon">
+                <i class="bi bi-percent"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ today_pass_rate }}%</div>
+                <div class="stat-label">今日通行率</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- 按时段统计 -->
+    <div class="col-lg-8">
+        <div class="card gate-card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-clock-history me-2"></i>今日按时段统计
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="hourly-chart">
+                    {% for stat in hourly_stats %}
+                    {% if stat.total > 0 %}
+                    <div class="hourly-bar-container">
+                        <div class="hourly-bar" style="height: {{ (stat.total / 50 * 100)|int if stat.total < 50 else 100 }}%">
+                            <span class="hourly-value">{{ stat.total }}</span>
+                        </div>
+                        <div class="hourly-label">{{ stat.hour }}</div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- 按车站统计 -->
+        <div class="card gate-card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-geo-alt me-2"></i>按车站统计
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if station_stats %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>车站</th>
+                                <th>检票量</th>
+                                <th>通行量</th>
+                                <th>通行率</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in station_stats %}
+                            <tr>
+                                <td>{{ stat.station_name }}</td>
+                                <td>{{ stat.total }}</td>
+                                <td class="text-success">{{ stat.pass_count or 0 }}</td>
+                                <td>
+                                    {% set rate = (stat.pass_count / stat.total * 100)|round(1) if stat.total > 0 else 0 %}
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar bg-success" 
+                                             style="width: {{ rate }}%">
+                                            {{ rate }}%
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                    暂无数据
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- 右侧：拒绝原因统计 -->
+    <div class="col-lg-4">
+        <div class="card gate-card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>拒绝原因统计
+                </h6>
+            </div>
+            <div class="card-body">
+                {% if reject_reasons %}
+                <div class="reject-reason-list">
+                    {% for reason, count in reject_reasons %}
+                    <div class="reject-reason-item">
+                        <div class="reject-reason-content">
+                            <div class="reject-reason-text">{{ reason }}</div>
+                            <div class="reject-reason-count">{{ count }} 次</div>
+                        </div>
+                        <div class="reject-reason-bar">
+                            {% set max_count = reject_reasons[0][1] %}
+                            <div class="reject-reason-progress" 
+                                 style="width: {{ (count / max_count * 100)|int }}%"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-check-circle fs-1 d-block mb-2 text-success"></i>
+                    <p>今日无拒绝记录</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- 本周统计 -->
+        <div class="card gate-card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-calendar-week me-2"></i>本周累计
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="week-stats">
+                    <div class="week-stat-item">
+                        <div class="week-stat-value">{{ week_total }}</div>
+                        <div class="week-stat-label">本周检票量</div>
+                    </div>
+                    <div class="week-stat-item text-success">
+                        <div class="week-stat-value">{{ week_pass }}</div>
+                        <div class="week-stat-label">本周通行</div>
+                    </div>
+                    <div class="week-stat-item text-danger">
+                        <div class="week-stat-value">{{ week_reject }}</div>
+                        <div class="week-stat-label">本周拒绝</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.hourly-chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    height: 200px;
+    padding: 10px 0;
+}
+
+.hourly-bar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 30px;
+}
+
+.hourly-bar {
+    width: 20px;
+    background: linear-gradient(to top, #00B894, #00cec9);
+    border-radius: 4px 4px 0 0;
+    min-height: 5px;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    transition: height 0.3s;
+}
+
+.hourly-value {
+    position: absolute;
+    top: -20px;
+    font-size: 10px;
+    color: #666;
+}
+
+.hourly-label {
+    font-size: 9px;
+    color: #888;
+    margin-top: 5px;
+}
+
+.reject-reason-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.reject-reason-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.reject-reason-item:last-child {
+    border-bottom: none;
+}
+
+.reject-reason-content {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.reject-reason-text {
+    font-size: 0.9rem;
+    color: #2D3436;
+}
+
+.reject-reason-count {
+    font-size: 0.85rem;
+    color: #E17055;
+    font-weight: bold;
+}
+
+.reject-reason-bar {
+    height: 6px;
+    background: #f0f0f0;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.reject-reason-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #E17055, #d63031);
+    border-radius: 3px;
+    transition: width 0.3s;
+}
+
+.week-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    text-align: center;
+}
+
+.week-stat-item {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.week-stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #1A2E2A;
+}
+
+.week-stat-label {
+    font-size: 0.85rem;
+    color: #888;
+    margin-top: 5px;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends "gate/base.html" %}
+
+{% block title %}闸机设备 - 闸机检票系统{% endblock %}
+
+{% block content %}
+<div class="gate-page-header">
+    <h4 class="mb-0">
+        <i class="bi bi集-waypoint me-2"></i>闸机设备
+    </h4>
+    <a href="/gate/gates/new" class="btn btn-gate">
+        <i class="bi bi-plus-lg me-2"></i>添加闸机
+    </a>
+</div>
+
+{% for station_name, data in gates_by_station.items() %}
+<div class="card gate-card mb-4">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class="bi bi-geo-alt me-2"></i>{{ station_name }}
+            <span class="badge bg-secondary ms-2">{{ data.gates | length }} 台</span>
+        </h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>闸机编号</th>
+                        <th>闸机名称</th>
+                        <th>类型</th>
+                        <th>位置</th>
+                        <th>状态</th>
+                        <th>最后心跳</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for gate in data.gates %}
+                    <tr>
+                        <td>
+                            <span class="gate-code-badge">{{ gate.gate_code }}</span>
+                        </td>
+                        <td>{{ gate.gate_name }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'primary' if gate.gate_type == 'entry' else 'info' }}">
+                                {{ '入站' if gate.gate_type == 'entry' else '出站' }}
+                            </span>
+                        </td>
+                        <td>{{ gate.location or '-' }}</td>
+                        <td>
+                            {% if gate.status == 'online' %}
+                            <span class="badge bg-success">
+                                <i class="bi bi-lightning-fill me-1"></i>在线
+                            </span>
+                            {% elif gate.status == 'offline' %}
+                            <span class="badge bg-secondary">
+                                <i class="bi bi-wifi-off me-1"></i>离线
+                            </span>
+                            {% elif gate.status == 'maintenance' %}
+                            <span class="badge bg-warning text-dark">
+                                <i class="bi bi-wrench me-1"></i>维护
+                            </span>
+                            {% else %}
+                            <span class="badge bg-danger">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i>故障
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if gate.last_heartbeat %}
+                            {{ gate.last_heartbeat.strftime('%H:%M:%S') }}
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="/gate/gates/{{ gate.id }}/edit" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil me-1"></i>编辑
+                            </a>
+                            <form method="POST" action="/gate/gates/{{ gate.id }}/toggle-status" 
+                                  class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-{{ 'outline-warning' if gate.status == 'online' else 'outline-success' }}">
+                                    <i class="bi bi-{{ 'wrench' if gate.status == 'online' else 'lightning-charge' }} me-1"></i>
+                                    {{ '维护' if gate.status == 'online' else '启用' }}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="card gate-card">
+    <div class="card-body text-center text-muted py-5">
+        <i class="bi bi、集-x fs-1 d-block mb-3"></i>
+        <h5>暂无闸机设备</h5>
+        <p class="small">请先添加闸机设备</p>
+        <a href="/gate/gates/new" class="btn btn-gate">
+            <i class="bi bi-plus-lg me-2"></i>添加闸机
+        </a>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

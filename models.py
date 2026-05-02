@@ -194,3 +194,64 @@ class OperationLog(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     user = db.relationship('User')
+
+# ============== 闸机检票系统模型 ==============
+
+class Gate(db.Model):
+    """闸机设备"""
+    __tablename__ = 'gates'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    gate_code = db.Column(db.String(20), unique=True, nullable=False)  # 闸机编号，如 "SHH-G01"
+    gate_name = db.Column(db.String(50), nullable=False)  # 闸机名称
+    station_id = db.Column(db.Integer, db.ForeignKey('stations.id'))  # 所属车站
+    gate_type = db.Column(db.String(20))  # 入站闸机/出站闸机
+    location = db.Column(db.String(100))  # 位置描述
+    status = db.Column(db.String(20), default='offline')  # online/offline/maintenance/fault
+    last_heartbeat = db.Column(db.DateTime)  # 最后心跳时间
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    station = db.relationship('Station', backref='gates')
+
+
+class GateCheck(db.Model):
+    """检票记录"""
+    __tablename__ = 'gate_checks'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    gate_id = db.Column(db.Integer, db.ForeignKey('gates.id'))  # 闸机
+    ticket_id = db.Column(db.Integer, db.ForeignKey('tickets.id'), nullable=True)  # 关联车票
+    check_plan_id = db.Column(db.Integer, db.ForeignKey('check_plans.id'), nullable=True)  # 关联检票计划
+    check_method = db.Column(db.String(20))  # id_card/qrcode/manual
+    check_result = db.Column(db.String(20))  # pass/reject/pending_review
+    reject_reason = db.Column(db.String(200), nullable=True)  # 拒绝原因
+    passenger_name = db.Column(db.String(100), nullable=True)  # 旅客姓名
+    passenger_id_card = db.Column(db.String(18), nullable=True)  # 身份证号
+    train_code = db.Column(db.String(20), nullable=True)  # 车次代码
+    checked_at = db.Column(db.DateTime, default=datetime.utcnow)  # 检票时间
+    operator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # 操作员
+    
+    gate = db.relationship('Gate', backref='checks')
+    ticket = db.relationship('Ticket', backref='gate_checks')
+    check_plan = db.relationship('CheckPlan', backref='checks')
+    operator = db.relationship('User', backref='gate_operations')
+
+
+class CheckPlan(db.Model):
+    """检票计划"""
+    __tablename__ = 'check_plans'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    train_id = db.Column(db.Integer, db.ForeignKey('trains.id'))  # 车次
+    station_id = db.Column(db.Integer, db.ForeignKey('stations.id'))  # 检票车站
+    gate_ids = db.Column(db.String(200))  # 分配的闸机ID列表，逗号分隔
+    check_start_time = db.Column(db.String(10))  # 检票开始时间 HH:MM
+    check_end_time = db.Column(db.String(10))  # 检票结束时间 HH:MM
+    effective_date = db.Column(db.String(20))  # 生效日期 YYYY-MM-DD，daily表示每天
+    status = db.Column(db.String(20), default='pending')  # pending/checking/finished
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    train = db.relationship('Train', backref='check_plans')
+    station = db.relationship('Station', backref='check_plans')
+    creator = db.relationship('User', backref='created_check_plans')

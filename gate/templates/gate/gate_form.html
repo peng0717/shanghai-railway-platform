@@ -1,0 +1,102 @@
+{% extends "gate/base.html" %}
+
+{% block title %}{{ '编辑闸机' if gate else '添加闸机' }} - 闸机检票系统{% endblock %}
+
+{% block content %}
+<div class="gate-page-header">
+    <h4 class="mb-0">
+        <i class="bi bi-{{ 'pencil' if gate else 'plus-lg' }} me-2"></i>{{ '编辑闸机' if gate else '添加闸机' }}
+    </h4>
+</div>
+
+<div class="card gate-card">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="form-label">闸机编号 <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" name="gate_code" 
+                           value="{{ gate.gate_code if gate else '' }}" 
+                           placeholder="如：SHH-G01" required
+                           {% if gate %}readonly{% endif %}>
+                    <small class="text-muted">格式：站点代码-G序号，如 SHH-G01</small>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label">闸机名称 <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" name="gate_name" 
+                           value="{{ gate.gate_name if gate else '' }}" 
+                           placeholder="如：上海虹桥1号检票口A闸机" required>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label">所属车站 <span class="text-danger">*</span></label>
+                    <select class="form-select" name="station_id" required>
+                        <option value="">请选择车站</option>
+                        {% for station in stations %}
+                        <option value="{{ station.id }}" 
+                                {% if gate and gate.station_id == station.id %}selected{% endif %}>
+                            {{ station.station_name }} ({{ station.station_code }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label">闸机类型 <span class="text-danger">*</span></label>
+                    <select class="form-select" name="gate_type" required>
+                        <option value="entry" {% if gate and gate.gate_type == 'entry' %}selected{% endif %}>
+                            入站闸机
+                        </option>
+                        <option value="exit" {% if gate and gate.gate_type == 'exit' %}selected{% endif %}>
+                            出站闸机
+                        </option>
+                    </select>
+                </div>
+                
+                <div class="col-12">
+                    <label class="form-label">位置描述</label>
+                    <input type="text" class="form-control" name="location" 
+                           value="{{ gate.location if gate else '' }}" 
+                           placeholder="如：B1层东侧、候车室A入口">
+                </div>
+                
+                {% if gate %}
+                <div class="col-md-6">
+                    <label class="form-label">当前状态</label>
+                    <div>
+                        {% if gate.status == 'online' %}
+                        <span class="badge bg-success">
+                            <i class="bi bi-lightning-fill me-1"></i>在线
+                        </span>
+                        {% elif gate.status == 'offline' %}
+                        <span class="badge bg-secondary">
+                            <i class="bi bi-wifi-off me-1"></i>离线
+                        </span>
+                        {% elif gate.status == 'maintenance' %}
+                        <span class="badge bg-warning text-dark">
+                            <i class="bi bi-wrench me-1"></i>维护
+                        </span>
+                        {% else %}
+                        <span class="badge bg-danger">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>故障
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="col-12">
+                    <hr>
+                    <button type="submit" class="btn btn-gate">
+                        <i class="bi bi-check-lg me-2"></i>保存
+                    </button>
+                    <a href="/gate/gates" class="btn btn-outline-secondary ms-2">
+                        <i class="bi bi-x-lg me-2"></i>取消
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
