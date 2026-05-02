@@ -116,15 +116,17 @@ if __name__ == '__main__':
                 port = try_port
                 break
     
+    # 检测运行环境，生成正确的访问地址
+    replit_domain = os.environ.get('REPLIT_DEV_DOMAIN', '')
+    if replit_domain:
+        base_url = f"https://{replit_domain}"
+    else:
+        base_url = f"http://localhost:{port}"
+    
     print(f"上海局铁路一体化集成平台启动中...")
-    print(f"客票系统访问地址: http://localhost:{port}/")
-    print(f"运营管理系统访问地址: http://localhost:{port}/ops/")
-    print(f"闸机检票系统（预留）: http://localhost:{port}/gate/")
-    print("-" * 50)
-    print("演示账号：")
-    print("  管理员: admin / admin123")
-    print("  旅客: demo / demo123")
-    print("  职工: staff / staff123")
+    print(f"客票系统访问地址: {base_url}/")
+    print(f"运营管理系统访问地址: {base_url}/ops/")
+    print(f"闸机检票系统（预留）: {base_url}/gate/")
     print("-" * 50)
     
     app.run(host='0.0.0.0', port=port, debug=False)
