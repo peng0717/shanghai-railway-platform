@@ -11,6 +11,7 @@ gate_bp = Blueprint('gate', __name__)
 def dashboard():
     """实时监控台"""
     today = datetime.now().strftime('%Y-%m-%d')
+    now = datetime.now()
     
     # 统计数据
     today_checks = GateCheck.query.filter(
@@ -73,7 +74,8 @@ def dashboard():
                          total_gates=total_gates,
                          checking_trains=checking_trains,
                          gates_by_station=gates_by_station,
-                         recent_checks=recent_checks)
+                         recent_checks=recent_checks,
+                         now=now)
 
 
 @gate_bp.route('/check', methods=['GET', 'POST'])
