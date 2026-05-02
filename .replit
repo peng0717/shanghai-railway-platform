@@ -3,7 +3,7 @@ language = "python3"
 entrypoint = "app.py"
 
 [[ports]]
-localPort = 5000
+localPort = 8080
 externalPort = 80
 
 [nix]

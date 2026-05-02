@@ -100,7 +100,7 @@ def server_error(e):
     return render_template('client/500.html'), 500
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
+    port = int(os.environ.get('PORT', 8080))
     
     # 检查端口是否可用
     if check_port(port):
