@@ -2,7 +2,7 @@ run = "python app.py"
 language = "python3"
 entrypoint = "app.py"
 
-[ports]
+[[ports]]
 localPort = 5000
 externalPort = 80
 
