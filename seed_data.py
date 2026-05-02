@@ -216,6 +216,14 @@ def load_seed_data(db):
         ('SSZ', '宿松', 'Susong', '安庆', '安徽', '三等', 0),
         ('THZ', '太湖', 'Taihu', '安庆', '安徽', '三等', 0),
         ('TZS', '天柱山', 'Tianzhushan', '安庆', '安徽', '三等', 0),
+        
+        # 外局站点（上海局始发列车的终到站）
+        ('BJP', '北京南', 'BeijingNan', '北京', '北京', '特等', 1),
+        ('CSQ', '长沙南', 'ChangshaNan', '长沙', '湖南', '特等', 1),
+        ('FZS', '福州南', 'FuzhouNan', '福州', '福建', '一等', 1),
+        ('KMG', '昆明南', 'KunmingNan', '昆明', '云南', '特等', 1),
+        ('SZN', '深圳北', 'ShenzhenBei', '深圳', '广东', '特等', 1),
+        ('XAF', '西安北', 'XianBei', '西安', '陕西', '特等', 1),
     ]
     
     stations = []
@@ -624,8 +632,8 @@ def load_seed_data(db):
     # 创建公告
     announcements = [
         Announcement(
-            title='关于2024年春运期间增开列车的公告',
-            content='为满足2024年春运期间旅客出行需求，我局将在春节期间增开多趟临时旅客列车，具体车次及开行时间请关注车站公告。',
+            title='关于2026年春运期间增开列车的公告',
+            content='为满足2026年春运期间旅客出行需求，我局将在春节期间增开多趟临时旅客列车，具体车次及开行时间请关注车站公告。',
             type='announcement',
             created_by=admin.id
         ),

@@ -70,13 +70,7 @@ def ops_error_page():
     from flask import render_template
     return render_template('ops/error.html', message='页面加载失败，请返回首页重试')
 
-# 根路径重定向
-@app.route('/')
-def index():
-    from flask import redirect, url_for
-    if 'user_id' in session:
-        return redirect(url_for('client.index'))
-    return redirect(url_for('client.index'))
+# 根路径由client蓝图处理，不再重复注册
 
 @app.route('/gate/')
 def gate():

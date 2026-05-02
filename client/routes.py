@@ -32,10 +32,12 @@ def index():
     provinces = db.session.query(Station.province).distinct().all()
     provinces = [p[0] for p in provinces]
     
+    from datetime import date as date_mod
     return render_template('client/index.html', 
                          announcements=announcements,
                          popular_trains=popular_trains,
-                         provinces=sorted(provinces))
+                         provinces=sorted(provinces),
+                         today=date_mod.today().isoformat())
 
 
 @client_bp.route('/search')
