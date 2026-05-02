@@ -1,3 +1,1 @@
-from flask import Blueprint
-
-ops_bp = Blueprint('ops', __name__)
+# ops package

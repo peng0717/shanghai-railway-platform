@@ -29,8 +29,14 @@ from config import Config
 from models import db
 from seed_data import init_database
 
-# 创建Flask应用
-app = Flask(__name__)
+# 创建Flask应用 - 显式设置模板搜索路径
+from jinja2 import FileSystemLoader
+template_dirs = [
+    os.path.join(os.path.dirname(__file__), 'client', 'templates'),
+    os.path.join(os.path.dirname(__file__), 'ops', 'templates'),
+]
+app = Flask(__name__, template_folder=template_dirs[0])
+app.jinja_loader = FileSystemLoader(template_dirs)
 app.config.from_object(Config)
 
 # 启用CORS
