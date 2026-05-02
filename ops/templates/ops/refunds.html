@@ -1,0 +1,85 @@
+{% extends "ops/base.html" %}
+
+{% block title %}退票管理 - 运营管理系统{% endblock %}
+
+{% block content %}
+<div class="py-4">
+    <h4 class="mb-4"><i class="bi bi-arrow-return-left me-2"></i>退票管理</h4>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-0">订单号</th>
+                            <th class="border-0">车次</th>
+                            <th class="border-0">乘客</th>
+                            <th class="border-0">退款金额</th>
+                            <th class="border-0">退票费</th>
+                            <th class="border-0">原因</th>
+                            <th class="border-0">申请时间</th>
+                            <th class="border-0">状态</th>
+                            <th class="border-0">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in refunds.items %}
+                        <tr>
+                            <td class="small">{{ r.ticket.order_no }}</td>
+                            <td>{{ r.ticket.train.train_code }}</td>
+                            <td>{{ r.ticket.passenger_name }}</td>
+                            <td class="text-success">¥{{ r.refund_amount }}</td>
+                            <td class="text-danger">¥{{ r.refund_fee }}</td>
+                            <td class="small">{{ r.reason[:20] }}</td>
+                            <td class="small">{{ r.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'warning' if r.status == 'pending' else 'success' if r.status == 'approved' else 'danger' }}">
+                                    {{ '待处理' if r.status == 'pending' else '已批准' if r.status == 'approved' else '已拒绝' }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if r.status == 'pending' %}
+                                <form method="POST" action="/ops/refunds/{{ r.id }}/process" class="d-inline">
+                                    <input type="hidden" name="action" value="approve">
+                                    <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check"></i></button>
+                                </form>
+                                <form method="POST" action="/ops/refunds/{{ r.id }}/process" class="d-inline">
+                                    <input type="hidden" name="action" value="reject">
+                                    <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-x"></i></button>
+                                </form>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-4">暂无退票记录</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        {% if refunds.pages > 1 %}
+        <div class="card-footer bg-white">
+            <nav>
+                <ul class="pagination justify-content-center mb-0">
+                    {% if refunds.has_prev %}
+                    <li class="page-item"><a class="page-link" href="?page={{ refunds.prev_num }}">上一页</a></li>
+                    {% endif %}
+                    {% for p in range(1, refunds.pages + 1) %}
+                    <li class="page-item {{ 'active' if p == refunds.page else '' }}"><a class="page-link" href="?page={{ p }}">{{ p }}</a></li>
+                    {% endfor %}
+                    {% if refunds.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ refunds.next_num }}">下一页</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

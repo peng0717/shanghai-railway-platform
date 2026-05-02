@@ -1,0 +1,201 @@
+{% extends "client/base.html" %}
+
+{% block title %}首页 - 上海局铁路客票系统{% endblock %}
+
+{% block content %}
+<!-- 首页横幅 -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-5 fw-bold text-white mb-3">
+                    <i class="bi bi-train-front me-3"></i>上海局铁路客票系统
+                </h1>
+                <p class="lead text-white-50 mb-4">便捷购票、实时查询、畅享旅程</p>
+            </div>
+            <div class="col-lg-6">
+                <!-- 搜索框 -->
+                <div class="search-card p-4">
+                    <h5 class="mb-3"><i class="bi bi-search me-2"></i>车票查询</h5>
+                    <form action="/search" method="GET" id="searchForm">
+                        <div class="row g-3">
+                            <div class="col-md-5">
+                                <label class="form-label small text-muted">出发站</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                                    <input type="text" class="form-control" name="from" id="fromStation" placeholder="输入出发站" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label small text-muted">到达站</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-geo-alt-fill"></i></span>
+                                    <input type="text" class="form-control" name="to" id="toStation" placeholder="输入到达站" autocomplete="off">
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label small text-muted">出发日期</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                                    <input type="date" class="form-control" name="date" id="travelDate" value="{{ today }}">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small text-muted">&nbsp;</label>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-search me-2"></i>查询
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 快捷入口 -->
+<section class="py-4 bg-white">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-3 col-sm-6">
+                <a href="/search" class="text-decoration-none">
+                    <div class="quick-entry p-4 text-center">
+                        <div class="quick-icon mb-3">
+                            <i class="bi bi-search"></i>
+                        </div>
+                        <h6>车票查询</h6>
+                        <p class="small text-muted mb-0">查询余票与票价</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="/timetable" class="text-decoration-none">
+                    <div class="quick-entry p-4 text-center">
+                        <div class="quick-icon mb-3">
+                            <i class="bi bi-clock"></i>
+                        </div>
+                        <h6>列车时刻表</h6>
+                        <p class="small text-muted mb-0">查看车次时刻</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="#" class="text-decoration-none">
+                    <div class="quick-entry p-4 text-center">
+                        <div class="quick-icon mb-3">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <h6>正晚点查询</h6>
+                        <p class="small text-muted mb-0">实时列车状态</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="#" class="text-decoration-none">
+                    <div class="quick-entry p-4 text-center">
+                        <div class="quick-icon mb-3">
+                            <i class="bi bi-ticket-perforated"></i>
+                        </div>
+                        <h6>订餐服务</h6>
+                        <p class="small text-muted mb-0">车上订餐</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 公告区 -->
+<section class="py-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="bi bi-megaphone me-2 text-primary"></i>最新公告</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if announcements %}
+                        <div class="list-group list-group-flush">
+                            {% for ann in announcements %}
+                            <div class="list-group-item px-0">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <span class="badge bg-{{ 'primary' if ann.type == 'notice' else 'warning' }} me-2">{{ '通知' if ann.type == 'notice' else '公告' }}</span>
+                                        <span class="fw-medium">{{ ann.title }}</span>
+                                    </div>
+                                    <small class="text-muted">{{ ann.created_at.strftime('%Y-%m-%d') }}</small>
+                                </div>
+                                <p class="small text-muted mb-0 mt-2">{{ ann.content[:100] }}{% if ann.content|length > 100 %}...{% endif %}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted text-center mb-0">暂无公告</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="bi bi-info-circle me-2 text-primary"></i>服务提示</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled small">
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                互联网售票预售期为15天
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                开车前15天以上退票免收退票费
+                            </li>
+                            <li class="mb-3">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                购票可使用支付宝、微信、银行卡
+                            </li>
+                            <li class="mb-0">
+                                <i class="bi bi-check-circle text-success me-2"></i>
+                                凭二代身份证可直接刷闸机进站
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 设置默认日期为今天
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('travelDate').value = today;
+    
+    // 站点自动补全
+    function setupAutocomplete(inputId) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        
+        input.addEventListener('input', function() {
+            const query = this.value.trim();
+            if (query.length < 1) return;
+            
+            fetch(`/api/stations?q=${encodeURIComponent(query)}`)
+                .then(r => r.json())
+                .then(data => {
+                    // 简单的提示实现
+                    console.log('找到站点:', data.length);
+                });
+        });
+    }
+    
+    setupAutocomplete('fromStation');
+    setupAutocomplete('toStation');
+});
+</script>
+{% endblock %}

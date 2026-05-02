@@ -1,0 +1,98 @@
+{% extends "ops/base.html" %}
+
+{% block title %}票务管理 - 运营管理系统{% endblock %}
+
+{% block content %}
+<div class="py-4">
+    <h4 class="mb-4"><i class="bi bi-ticket-perforated me-2"></i>售票记录</h4>
+
+    <!-- 搜索筛选 -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <input type="text" name="train_code" class="form-control" placeholder="车次号" value="{{ request.args.get('train_code', '') }}">
+                </div>
+                <div class="col-md-3">
+                    <input type="date" name="date" class="form-control" value="{{ request.args.get('date', '') }}">
+                </div>
+                <div class="col-md-2">
+                    <select name="status" class="form-select">
+                        <option value="">全部状态</option>
+                        <option value="paid" {{ 'selected' if request.args.get('status') == 'paid' else '' }}>已支付</option>
+                        <option value="unpaid" {{ 'selected' if request.args.get('status') == 'unpaid' else '' }}>待支付</option>
+                        <option value="used" {{ 'selected' if request.args.get('status') == 'used' else '' }}>已出行</option>
+                        <option value="refunded" {{ 'selected' if request.args.get('status') == 'refunded' else '' }}>已退票</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-primary me-2"><i class="bi bi-search"></i></button>
+                    <a href="/ops/tickets" class="btn btn-outline-secondary">重置</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 记录列表 -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-0">订单号</th>
+                            <th class="border-0">车次</th>
+                            <th class="border-0">出发-到达</th>
+                            <th class="border-0">乘客</th>
+                            <th class="border-0">席别</th>
+                            <th class="border-0">日期</th>
+                            <th class="border-0">票价</th>
+                            <th class="border-0">状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in tickets.items %}
+                        <tr>
+                            <td class="small">{{ t.order_no }}</td>
+                            <td>
+                                <span class="fw-bold text-primary">{{ t.train.train_code }}</span>
+                            </td>
+                            <td class="small">
+                                {{ t.from_station.station_name }}<br>{{ t.to_station.station_name }}
+                            </td>
+                            <td>{{ t.passenger_name }}</td>
+                            <td>{{ t.seat_type.name }}</td>
+                            <td>{{ t.departure_date }}</td>
+                            <td class="text-danger">¥{{ t.price }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'warning' if t.status == 'unpaid' else 'success' if t.status == 'paid' else 'secondary' if t.status == 'used' else 'danger' }}">
+                                    {{ '待支付' if t.status == 'unpaid' else '已支付' if t.status == 'paid' else '已出行' if t.status == 'used' else '已退票' if t.status == 'refunded' else '已取消' }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        {% if tickets.pages > 1 %}
+        <div class="card-footer bg-white">
+            <nav>
+                <ul class="pagination justify-content-center mb-0">
+                    {% if tickets.has_prev %}
+                    <li class="page-item"><a class="page-link" href="?train_code={{ request.args.get('train_code', '') }}&date={{ request.args.get('date', '') }}&status={{ request.args.get('status', '') }}&page={{ tickets.prev_num }}">上一页</a></li>
+                    {% endif %}
+                    {% for p in range(1, tickets.pages + 1) %}
+                    <li class="page-item {{ 'active' if p == tickets.page else '' }}"><a class="page-link" href="?train_code={{ request.args.get('train_code', '') }}&date={{ request.args.get('date', '') }}&status={{ request.args.get('status', '') }}&page={{ p }}">{{ p }}</a></li>
+                    {% endfor %}
+                    {% if tickets.has_next %}
+                    <li class="page-item"><a class="page-link" href="?train_code={{ request.args.get('train_code', '') }}&date={{ request.args.get('date', '') }}&status={{ request.args.get('status', '') }}&page={{ tickets.next_num }}">下一页</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

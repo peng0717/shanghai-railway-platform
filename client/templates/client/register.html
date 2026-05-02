@@ -1,0 +1,69 @@
+{% extends "client/base.html" %}
+
+{% block title %}注册 - 上海局铁路客票系统{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <svg viewBox="0 0 40 40" width="48" height="48" class="mb-3">
+                            <circle cx="20" cy="20" r="19" fill="#C4161C" stroke="none"/>
+                            <path d="M20 6 L12 28 L16 28 L20 16 L24 28 L28 28 Z" fill="white"/>
+                            <rect x="10" y="29" width="20" height="3" rx="1" fill="white"/>
+                        </svg>
+                        <h4 class="mb-1">用户注册</h4>
+                        <p class="text-muted small">上海局铁路客票系统</p>
+                    </div>
+                    
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">用户名 <span class="text-danger">*</span></label>
+                            <input type="text" name="username" class="form-control" required placeholder="请设置用户名">
+                            <div class="form-text">用户名将用于登录系统</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">姓名 <span class="text-danger">*</span></label>
+                            <input type="text" name="real_name" class="form-control" required placeholder="请输入真实姓名">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">密码 <span class="text-danger">*</span></label>
+                            <input type="password" name="password" class="form-control" required minlength="6" placeholder="请设置密码">
+                            <div class="form-text">密码长度至少6位</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">确认密码 <span class="text-danger">*</span></label>
+                            <input type="password" name="confirm_password" class="form-control" required minlength="6" placeholder="请再次输入密码">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">身份证号</label>
+                            <input type="text" name="id_card" class="form-control" placeholder="请输入身份证号（选填）" maxlength="18">
+                            <div class="form-text">用于购买车票和身份核验</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">手机号</label>
+                            <input type="tel" name="phone" class="form-control" placeholder="请输入手机号（选填）">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">邮箱</label>
+                            <input type="email" name="email" class="form-control" placeholder="请输入邮箱（选填）">
+                        </div>
+                        <div class="mb-4">
+                            <button type="submit" class="btn btn-danger w-100 py-2">
+                                <i class="bi bi-person-plus me-2"></i>注册
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center">
+                        <span class="text-muted">已有账号？</span>
+                        <a href="/login" class="text-decoration-none">立即登录</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "ops/base.html" %}
+
+{% block title %}新增列车调整 - 运营管理系统{% endblock %}
+
+{% block content %}
+<div class="py-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/ops/schedule-changes">列车调整</a></li>
+            <li class="breadcrumb-item active">新增调整</li>
+        </ol>
+    </nav>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white">
+            <h6 class="mb-0">新增列车调整</h6>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">车次 <span class="text-danger">*</span></label>
+                        <select name="train_id" class="form-select" required>
+                            <option value="">请选择车次</option>
+                            {% for t in trains %}
+                            <option value="{{ t.id }}">{{ t.train_code }} ({{ t.start_station.station_name }} - {{ t.end_station.station_name }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">调整类型 <span class="text-danger">*</span></label>
+                        <select name="change_type" class="form-select" required>
+                            <option value="">请选择</option>
+                            <option value="cancel">停运</option>
+                            <option value="delay">晚点</option>
+                            <option value="change">变更</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">生效日期 <span class="text-danger">*</span></label>
+                        <input type="date" name="effective_date" class="form-control" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">原因 <span class="text-danger">*</span></label>
+                        <input type="text" name="reason" class="form-control" required placeholder="请输入调整原因">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">详细说明</label>
+                        <textarea name="description" class="form-control" rows="4" placeholder="请输入详细说明"></textarea>
+                    </div>
+                </div>
+                <div class="alert alert-warning mt-3">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    注意：如果选择"停运"类型，系统将自动将该车次状态设置为停运
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1"></i>发布调整
+                    </button>
+                    <a href="/ops/schedule-changes" class="btn btn-outline-secondary ms-2">取消</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

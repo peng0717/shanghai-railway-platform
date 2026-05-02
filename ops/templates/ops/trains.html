@@ -1,0 +1,132 @@
+{% extends "ops/base.html" %}
+
+{% block title %}车次管理 - 运营管理系统{% endblock %}
+
+{% block content %}
+<div class="py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0"><i class="bi bi-train-front me-2"></i>车次管理</h4>
+        <a href="/ops/trains/new" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>新增车次
+        </a>
+    </div>
+
+    <!-- 搜索筛选 -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="code" class="form-control" placeholder="车次号" value="{{ request.args.get('code', '') }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="type" class="form-select">
+                        <option value="">全部车型</option>
+                        <option value="高铁" {{ 'selected' if request.args.get('type') == '高铁' else '' }}>高铁</option>
+                        <option value="动车" {{ 'selected' if request.args.get('type') == '动车' else '' }}>动车</option>
+                        <option value="城际" {{ 'selected' if request.args.get('type') == '城际' else '' }}>城际</option>
+                        <option value="普速" {{ 'selected' if request.args.get('type') == '普速' else '' }}>普速</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-outline-primary me-2"><i class="bi bi-search"></i></button>
+                    <a href="/ops/trains" class="btn btn-outline-secondary">重置</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 车次列表 -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-0">车次</th>
+                            <th class="border-0">车型</th>
+                            <th class="border-0">始发站</th>
+                            <th class="border-0">终到站</th>
+                            <th class="border-0">出发时间</th>
+                            <th class="border-0">到达时间</th>
+                            <th class="border-0">历时</th>
+                            <th class="border-0">状态</th>
+                            <th class="border-0">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in trains.items %}
+                        <tr>
+                            <td class="fw-bold text-primary">{{ t.train_code }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'primary' if t.train_type == '高铁' else 'info' if t.train_type == '动车' else 'secondary' }}">
+                                    {{ t.train_type }}
+                                </span>
+                            </td>
+                            <td>{{ t.start_station.station_name }}</td>
+                            <td>{{ t.end_station.station_name }}</td>
+                            <td>{{ t.departure_time }}</td>
+                            <td>{{ t.arrival_time }}</td>
+                            <td>{{ (t.duration // 60)|int }}h{{ t.duration % 60 }}m</td>
+                            <td>
+                                {% if t.is_active %}
+                                <span class="badge bg-success">正常</span>
+                                {% else %}
+                                <span class="badge bg-danger">停运</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="/ops/trains/{{ t.id }}/edit" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <button onclick="deleteTrain({{ t.id }}, '{{ t.train_code }}')" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        {% if trains.pages > 1 %}
+        <div class="card-footer bg-white">
+            <nav>
+                <ul class="pagination justify-content-center mb-0">
+                    {% if trains.has_prev %}
+                    <li class="page-item"><a class="page-link" href="?code={{ request.args.get('code', '') }}&type={{ request.args.get('type', '') }}&page={{ trains.prev_num }}">上一页</a></li>
+                    {% endif %}
+                    {% for p in range(1, trains.pages + 1) %}
+                    <li class="page-item {{ 'active' if p == trains.page else '' }}"><a class="page-link" href="?code={{ request.args.get('code', '') }}&type={{ request.args.get('type', '') }}&page={{ p }}">{{ p }}</a></li>
+                    {% endfor %}
+                    {% if trains.has_next %}
+                    <li class="page-item"><a class="page-link" href="?code={{ request.args.get('code', '') }}&type={{ request.args.get('type', '') }}&page={{ trains.next_num }}">下一页</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function deleteTrain(id, code) {
+    if (!confirm('确定要删除车次 ' + code + ' 吗？')) return;
+    
+    fetch('/ops/trains/' + id + '/delete', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.message);
+        }
+    });
+}
+</script>
+{% endblock %}

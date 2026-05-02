@@ -1,0 +1,226 @@
+{% extends "client/base.html" %}
+
+{% block title %}订单详情 - 上海局铁路客票系统{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">首页</a></li>
+            <li class="breadcrumb-item"><a href="/orders">我的订单</a></li>
+            <li class="breadcrumb-item active">订单详情</li>
+        </ol>
+    </nav>
+
+    <!-- 状态提示 -->
+    {% if ticket.status == 'unpaid' %}
+    <div class="alert alert-warning d-flex align-items-center mb-4">
+        <i class="bi bi-exclamation-triangle-fill me-3 fs-4"></i>
+        <div>
+            <strong>订单待支付</strong>
+            <p class="mb-0 small">请在30分钟内完成支付，否则订单将自动取消</p>
+        </div>
+    </div>
+    {% elif ticket.status == 'paid' %}
+    <div class="alert alert-success d-flex align-items-center mb-4">
+        <i class="bi bi-check-circle-fill me-3 fs-4"></i>
+        <div>
+            <strong>支付成功</strong>
+            <p class="mb-0 small">请持有效身份证件提前到车站换取纸质车票或直接刷身份证进站</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 订单信息卡 -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-ticket-perforated me-2 text-primary"></i>电子客票</h5>
+            <span class="badge bg-{{ 'warning' if ticket.status == 'unpaid' else 'success' if ticket.status == 'paid' else 'secondary' if ticket.status == 'used' else 'danger' }}">
+                {{ '待支付' if ticket.status == 'unpaid' else '已支付' if ticket.status == 'paid' else '已出行' if ticket.status == 'used' else '已退票' if ticket.status == 'refunded' else '已取消' }}
+            </span>
+        </div>
+        <div class="card-body">
+            <div class="ticket-display p-4 bg-light rounded">
+                <div class="ticket-header text-center mb-4">
+                    <div class="train-code-lg">{{ ticket.train.train_code }}</div>
+                    <span class="badge bg-{{ 'primary' if ticket.train.train_type == '高铁' else 'info' if ticket.train.train_type == '动车' else 'secondary' }}">
+                        {{ ticket.train.train_type }}
+                    </span>
+                </div>
+                
+                <div class="ticket-route row text-center mb-4">
+                    <div class="col-5">
+                        <div class="time-lg">{{ ticket.departure_time }}</div>
+                        <div class="station-lg">{{ ticket.from_station.station_name }}</div>
+                    </div>
+                    <div class="col-2 d-flex align-items-center justify-content-center">
+                        <i class="bi bi-arrow-right text-muted fs-4"></i>
+                    </div>
+                    <div class="col-5">
+                        <div class="time-lg">{{ ticket.arrival_time }}</div>
+                        <div class="station-lg">{{ ticket.to_station.station_name }}</div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="ticket-info row">
+                    <div class="col-md-6">
+                        <table class="table table-sm mb-0">
+                            <tr>
+                                <td class="text-muted border-0">出发日期</td>
+                                <td class="border-0 fw-bold">{{ ticket.departure_date }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted border-0">席别</td>
+                                <td class="border-0 fw-bold">{{ ticket.seat_type.name }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted border-0">车厢座位</td>
+                                <td class="border-0 fw-bold">{{ ticket.car_number }}车 {{ ticket.seat_number }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm mb-0">
+                            <tr>
+                                <td class="text-muted border-0">乘客姓名</td>
+                                <td class="border-0 fw-bold">{{ ticket.passenger_name }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted border-0">证件号码</td>
+                                <td class="border-0 fw-bold">{{ ticket.passenger_id_card[:6] }}********{{ ticket.passenger_id_card[-4:] }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted border-0">票价</td>
+                                <td class="border-0 fw-bold text-danger fs-5">¥{{ ticket.price }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 订单详情 -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <h6 class="mb-0"><i class="bi bi-info-circle me-2 text-primary"></i>订单信息</h6>
+        </div>
+        <div class="card-body">
+            <table class="table table-borderless mb-0">
+                <tr>
+                    <td class="text-muted" style="width: 150px;">订单编号</td>
+                    <td>{{ ticket.order_no }}</td>
+                </tr>
+                <tr>
+                    <td class="text-muted">下单时间</td>
+                    <td>{{ ticket.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                </tr>
+                {% if ticket.paid_at %}
+                <tr>
+                    <td class="text-muted">支付时间</td>
+                    <td>{{ ticket.paid_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                </tr>
+                {% endif %}
+                {% if ticket.payment %}
+                <tr>
+                    <td class="text-muted">支付方式</td>
+                    <td>{{ ticket.payment.pay_method }}</td>
+                </tr>
+                <tr>
+                    <td class="text-muted">交易流水号</td>
+                    <td>{{ ticket.payment.transaction_no }}</td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+
+    <!-- 操作按钮 -->
+    {% if ticket.status == 'unpaid' %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted">应付金额：</span>
+                    <span class="fs-4 text-danger fw-bold">¥{{ ticket.price }}</span>
+                </div>
+                <div>
+                    <a href="/orders" class="btn btn-outline-secondary me-2">返回订单列表</a>
+                    <form method="POST" action="/order/{{ ticket.id }}/cancel" class="d-inline me-2">
+                        <button type="submit" class="btn btn-outline-danger" onclick="return confirm('确定要取消订单吗？')">
+                            <i class="bi bi-x-circle me-1"></i>取消订单
+                        </button>
+                    </form>
+                    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#payModal">
+                        <i class="bi bi-credit-card me-1"></i>立即支付
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 支付弹窗 -->
+    <div class="modal fade" id="payModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-credit-card me-2"></i>选择支付方式</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form method="POST" action="/order/{{ ticket.id }}/pay">
+                    <div class="modal-body">
+                        <div class="list-group">
+                            <label class="list-group-item">
+                                <input type="radio" name="pay_method" value="支付宝" class="form-check-input me-3" checked>
+                                <i class="bi bi-alipay text-primary me-2"></i>支付宝
+                            </label>
+                            <label class="list-group-item">
+                                <input type="radio" name="pay_method" value="微信支付" class="form-check-input me-3">
+                                <i class="bi bi-wechat text-success me-2"></i>微信支付
+                            </label>
+                            <label class="list-group-item">
+                                <input type="radio" name="pay_method" value="银行卡" class="form-check-input me-3">
+                                <i class="bi bi-bank text-info me-2"></i>银行卡
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="me-auto">
+                            应付金额：<span class="text-danger fw-bold fs-5">¥{{ ticket.price }}</span>
+                        </div>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-check-lg me-1"></i>确认支付
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% elif ticket.status == 'paid' %}
+    <div class="d-flex justify-content-between">
+        <a href="/orders" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>返回订单列表
+        </a>
+        <div>
+            <a href="/train/{{ ticket.train_id }}" class="btn btn-outline-primary me-2">
+                <i class="bi bi-info-circle me-1"></i>查看车次
+            </a>
+            <form method="POST" action="/order/{{ ticket.id }}/refund" class="d-inline">
+                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('确定要退票吗？退票将收取一定手续费')">
+                    <i class="bi bi-arrow-return-left me-1"></i>退票
+                </button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center">
+        <a href="/orders" class="btn btn-primary">
+            <i class="bi bi-arrow-left me-1"></i>返回订单列表
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends "client/base.html" %}
+
+{% block title %}{{ train.train_code }} - 车次详情{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">首页</a></li>
+            <li class="breadcrumb-item"><a href="/search">车次查询</a></li>
+            <li class="breadcrumb-item active">{{ train.train_code }}</li>
+        </ol>
+    </nav>
+
+    <!-- 车次信息 -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="train-code-lg me-3">{{ train.train_code }}</span>
+                    <span class="badge bg-{{ 'primary' if train.train_type == '高铁' else 'info' if train.train_type == '动车' else 'secondary' }}">
+                        {{ train.train_type }}
+                    </span>
+                    {% if not train.is_active %}
+                    <span class="badge bg-danger ms-2">已停运</span>
+                    {% endif %}
+                </div>
+                <div>
+                    {% if session.user_id and train.is_active %}
+                    <a href="/book/{{ train.id }}?date={{ today }}" class="btn btn-danger">
+                        <i class="bi bi-ticket me-2"></i>预订该车次
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-4">
+                    <div class="time-lg text-success">{{ train.departure_time }}</div>
+                    <div class="station-lg">{{ train.start_station.station_name }}</div>
+                    <div class="text-muted small">{{ train.start_station.city }}, {{ train.start_station.province }}</div>
+                </div>
+                <div class="col-4 d-flex flex-column align-items-center justify-content-center">
+                    <div class="text-muted small mb-2">{{ (train.duration // 60)|int }}小时{{ train.duration % 60 }}分钟</div>
+                    <div class="route-line">
+                        <div class="route-dot"></div>
+                        <div class="route-line-bar"></div>
+                        <div class="route-dot"></div>
+                    </div>
+                    <div class="text-muted small mt-2">全程 {{ train.total_distance }} 公里</div>
+                </div>
+                <div class="col-4">
+                    <div class="time-lg text-danger">{{ train.arrival_time }}</div>
+                    <div class="station-lg">{{ train.end_station.station_name }}</div>
+                    <div class="text-muted small">{{ train.end_station.city }}, {{ train.end_station.province }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 停站信息 -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <h6 class="mb-0"><i class="bi bi-list-ul me-2 text-primary"></i>停站信息</h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-0" style="width: 80px;">站序</th>
+                            <th class="border-0">站名</th>
+                            <th class="border-0">到达时间</th>
+                            <th class="border-0">出发时间</th>
+                            <th class="border-0">停靠时长</th>
+                            <th class="border-0">里程(公里)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stop in stops %}
+                        <tr>
+                            <td>{{ stop.stop_order }}</td>
+                            <td>
+                                <span class="fw-medium">{{ stop.station.station_name }}</span>
+                                {% if stop.stop_order == 1 %}
+                                <span class="badge bg-success ms-2">始发</span>
+                                {% elif stop.stop_order == stops|length %}
+                                <span class="badge bg-danger ms-2">终点</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ stop.arrival_time or '-' }}</td>
+                            <td>{{ stop.departure_time or '-' }}</td>
+                            <td>
+                                {% if stop.stop_duration and stop.stop_duration > 0 %}
+                                {{ stop.stop_duration }}分钟
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td>{{ stop.distance_from_start }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 席别信息 -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white">
+            <h6 class="mb-0"><i class="bi bi-cursor me-2 text-primary"></i>席别票价</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for seat in train.seats %}
+                <div class="col-md-4 col-lg-3 mb-3">
+                    <div class="border rounded p-3 text-center">
+                        <div class="fw-bold mb-1">{{ seat.seat_type.name }}</div>
+                        <div class="text-danger fs-5 fw-bold">¥{{ seat.price }}</div>
+                        <div class="small text-muted">
+                            余票：{{ seat.available_count }}张
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

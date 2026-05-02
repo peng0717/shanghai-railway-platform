@@ -1,0 +1,151 @@
+{% extends "client/base.html" %}
+
+{% block title %}订单确认 - 上海局铁路客票系统{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">首页</a></li>
+            <li class="breadcrumb-item"><a href="/search">车次查询</a></li>
+            <li class="breadcrumb-item active">订单确认</li>
+        </ol>
+    </nav>
+
+    <h4 class="mb-4"><i class="bi bi-ticket me-2"></i>订单确认</h4>
+
+    <!-- 车次信息 -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <h6 class="mb-0"><i class="bi bi-train-front me-2 text-primary"></i>车次信息</h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="train-code-lg">{{ train.train_code }}</div>
+                    <span class="badge bg-{{ 'primary' if train.train_type == '高铁' else 'info' if train.train_type == '动车' else 'secondary' }}">
+                        {{ train.train_type }}
+                    </span>
+                </div>
+                <div class="col-md-6">
+                    <div class="row text-center">
+                        <div class="col-5">
+                            <div class="time-lg">{{ train.departure_time }}</div>
+                            <div class="station-lg">{{ train.start_station.station_name }}</div>
+                        </div>
+                        <div class="col-2 d-flex align-items-center justify-content-center">
+                            <div>
+                                <div class="small text-muted">{{ (train.duration // 60)|int }}h{{ train.duration % 60 }}m</div>
+                                <i class="bi bi-arrow-right text-muted"></i>
+                            </div>
+                        </div>
+                        <div class="col-5">
+                            <div class="time-lg">{{ train.arrival_time }}</div>
+                            <div class="station-lg">{{ train.end_station.station_name }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 text-end">
+                    <div class="text-muted small">出发日期</div>
+                    <div class="date-lg">{{ date }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 订单表单 -->
+    <form method="POST">
+        <!-- 席别选择 -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-cursor me-2 text-primary"></i>选择席别</h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    {% for seat in seats %}
+                    <div class="col-md-4">
+                        <label class="seat-card p-3 border rounded d-block cursor-pointer {{ 'border-danger bg-light' if loop.first else '' }}">
+                            <input type="radio" name="seat_type_id" value="{{ seat.id }}" class="form-check-input me-2" {{ 'checked' if loop.first else '' }}>
+                            <span class="fw-bold">{{ seat.seat_type.name }}</span>
+                            <div class="text-primary fw-bold mt-1">¥{{ seat.price }}</div>
+                            <div class="small text-muted">余票：{{ seat.available_count }}张</div>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 乘车人信息 -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-person me-2 text-primary"></i>乘车人信息</h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">乘客姓名 <span class="text-danger">*</span></label>
+                        <input type="text" name="passenger_name" class="form-control" required 
+                               value="{{ session.real_name if session.real_name else '' }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">身份证号 <span class="text-danger">*</span></label>
+                        <input type="text" name="passenger_id_card" class="form-control" required
+                               pattern="\d{17}[\dXx]" maxlength="18"
+                               value="{{ current_user.id_card if current_user else '' }}">
+                        <div class="form-text">请输入18位身份证号码</div>
+                    </div>
+                </div>
+                
+                {% if current_user %}
+                <div class="alert alert-info mt-3 mb-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    已自动填充您的个人信息，请确认信息准确无误
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 提交 -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted">应付金额：</span>
+                        <span class="price-total" id="totalPrice">
+                            {% if seats %}
+                            ¥{{ seats[0].price }}
+                            {% else %}
+                            ¥0
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div>
+                        <a href="/search" class="btn btn-outline-secondary me-2">取消</a>
+                        <button type="submit" class="btn btn-danger btn-lg">
+                            <i class="bi bi-credit-card me-2"></i>提交订单
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('input[name="seat_type_id"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+        document.querySelectorAll('.seat-card').forEach(function(card) {
+            card.classList.remove('border-danger', 'bg-light');
+        });
+        this.closest('.seat-card').classList.add('border-danger', 'bg-light');
+        
+        // 更新价格
+        const price = this.closest('.seat-card').querySelector('.text-primary').textContent;
+        document.getElementById('totalPrice').textContent = price;
+    });
+});
+</script>
+{% endblock %}

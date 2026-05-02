@@ -1,0 +1,104 @@
+{% extends "client/base.html" %}
+
+{% block title %}列车时刻表 - 上海局铁路客票系统{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h4 class="mb-4"><i class="bi bi-clock me-2"></i>列车时刻表</h4>
+
+    <!-- 搜索 -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label small text-muted">车次号</label>
+                    <input type="text" name="code" class="form-control" value="{{ request.args.get('code', '') }}" placeholder="如：G1, D123">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small text-muted">经由站点</label>
+                    <input type="text" name="station" class="form-control" value="{{ request.args.get('station', '') }}" placeholder="站点名称或拼音">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="bi bi-search me-1"></i>查询
+                    </button>
+                    <a href="/timetable" class="btn btn-outline-secondary">重置</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 时刻表 -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-0">车次</th>
+                            <th class="border-0">类型</th>
+                            <th class="border-0">出发站</th>
+                            <th class="border-0">到达站</th>
+                            <th class="border-0">出发时间</th>
+                            <th class="border-0">到达时间</th>
+                            <th class="border-0">历时</th>
+                            <th class="border-0">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for train in trains.items %}
+                        <tr>
+                            <td class="fw-bold text-primary">{{ train.train_code }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'primary' if train.train_type == '高铁' else 'info' if train.train_type == '动车' else 'secondary' }}">
+                                    {{ train.train_type }}
+                                </span>
+                            </td>
+                            <td>{{ train.start_station.station_name }}</td>
+                            <td>{{ train.end_station.station_name }}</td>
+                            <td class="text-success fw-medium">{{ train.departure_time }}</td>
+                            <td class="text-danger fw-medium">{{ train.arrival_time }}</td>
+                            <td>{{ (train.duration // 60)|int }}h{{ train.duration % 60 }}m</td>
+                            <td>
+                                <a href="/train/{{ train.id }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-info-circle"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 分页 -->
+        {% if trains.pages > 1 %}
+        <div class="card-footer bg-white">
+            <nav>
+                <ul class="pagination justify-content-center mb-0">
+                    {% if trains.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="?code={{ request.args.get('code', '') }}&station={{ request.args.get('station', '') }}&page={{ trains.prev_num }}">上一页</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for p in range(1, trains.pages + 1) %}
+                    {% if p >= trains.page - 2 and p <= trains.page + 2 %}
+                    <li class="page-item {{ 'active' if p == trains.page else '' }}">
+                        <a class="page-link" href="?code={{ request.args.get('code', '') }}&station={{ request.args.get('station', '') }}&page={{ p }}">{{ p }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if trains.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?code={{ request.args.get('code', '') }}&station={{ request.args.get('station', '') }}&page={{ trains.next_num }}">下一页</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

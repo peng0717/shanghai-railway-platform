@@ -1,0 +1,143 @@
+{% extends "client/base.html" %}
+
+{% block title %}车次查询 - 上海局铁路客票系统{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- 查询条件 -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form action="/search" method="GET" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label small text-muted">出发站</label>
+                    <input type="text" class="form-control" name="from" value="{{ from_station }}" placeholder="输入出发站">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small text-muted">到达站</label>
+                    <input type="text" class="form-control" name="to" value="{{ to_station }}" placeholder="输入到达站">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small text-muted">出发日期</label>
+                    <input type="date" class="form-control" name="date" value="{{ date }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search me-2"></i>查询
+                    </button>
+                </div>
+                <div class="col-md-1">
+                    <a href="/" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-house"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 筛选条件 -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <span class="text-muted">共找到 <strong>{{ trains|length }}</strong> 趟列车</span>
+            <span class="text-muted ms-3">出发日期：{{ date }}</span>
+        </div>
+        <div class="btn-group btn-group-sm" role="group">
+            <a href="?from={{ from_station }}&to={{ to_station }}&date={{ date }}" class="btn btn-outline-primary {{ 'active' if not train_type else '' }}">全部</a>
+            <a href="?from={{ from_station }}&to={{ to_station }}&date={{ date }}&type=G" class="btn btn-outline-primary {{ 'active' if train_type == 'G' else '' }}">高铁</a>
+            <a href="?from={{ from_station }}&to={{ to_station }}&date={{ date }}&type=D" class="btn btn-outline-primary {{ 'active' if train_type == 'D' else '' }}">动车</a>
+            <a href="?from={{ from_station }}&to={{ to_station }}&date={{ date }}&type=K" class="btn btn-outline-primary {{ 'active' if train_type == 'K' else '' }}">普速</a>
+            <a href="?from={{ from_station }}&to={{ to_station }}&date={{ date }}&type=C" class="btn btn-outline-primary {{ 'active' if train_type == 'C' else '' }}">城际</a>
+        </div>
+    </div>
+
+    <!-- 车次列表 -->
+    {% if trains %}
+    <div class="train-list">
+        {% for item in trains %}
+        <div class="train-card card border-0 shadow-sm mb-3">
+            <div class="card-body p-0">
+                <div class="row g-0">
+                    <!-- 车次信息 -->
+                    <div class="col-md-2 train-info p-3">
+                        <div class="train-code">{{ item.train.train_code }}</div>
+                        <div class="train-type">
+                            <span class="badge bg-{{ 'primary' if item.train.train_type == '高铁' else 'info' if item.train.train_type == '动车' else 'secondary' }}">
+                                {{ item.train.train_type }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- 出发到达 -->
+                    <div class="col-md-4 time-info border-start border-end p-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-start">
+                                <div class="time-main">{{ item.train.departure_time }}</div>
+                                <div class="station-name">{{ item.train.start_station.station_name }}</div>
+                            </div>
+                            <div class="arrow text-center px-3">
+                                <div class="duration small text-muted">{{ (item.train.duration // 60)|int }}小时{{ item.train.duration % 60 }}分</div>
+                                <div class="arrow-line"><i class="bi bi-arrow-right"></i></div>
+                            </div>
+                            <div class="text-end">
+                                <div class="time-main">{{ item.train.arrival_time }}</div>
+                                <div class="station-name">{{ item.train.end_station.station_name }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 席别余票 -->
+                    <div class="col-md-6 seat-info p-3">
+                        <div class="row g-2">
+                            {% for seat in item.seats %}
+                            <div class="col-4 col-md-3">
+                                <div class="seat-item text-center p-2 {{ 'sold-out' if seat.available == 0 else '' }}">
+                                    <div class="seat-name small text-muted">{{ seat.type_name }}</div>
+                                    <div class="seat-price fw-bold text-primary">¥{{ seat.price }}</div>
+                                    <div class="seat-available small {{ 'text-danger' if seat.available < 10 else 'text-success' }}">
+                                        {{ '已售罄' if seat.available == 0 else (seat.available|int|string + '张') }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 操作栏 -->
+                <div class="train-action border-top p-2 bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <a href="/train/{{ item.train.id }}" class="btn btn-sm btn-link text-decoration-none">
+                                <i class="bi bi-info-circle me-1"></i>查看详情
+                            </a>
+                        </div>
+                        <div>
+                            {% if session.user_id %}
+                            <a href="/book/{{ item.train.id }}?date={{ date }}" class="btn btn-sm btn-danger">
+                                <i class="bi bi-ticket me-1"></i>预订
+                            </a>
+                            {% else %}
+                            <a href="/login?next=/book/{{ item.train.id }}?date={{ date }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>登录后预订
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-search text-muted display-4"></i>
+            <h5 class="mt-3 text-muted">未找到符合条件的车次</h5>
+            <p class="text-muted">请尝试调整查询条件</p>
+            <a href="/" class="btn btn-primary">
+                <i class="bi bi-house me-2"></i>返回首页
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

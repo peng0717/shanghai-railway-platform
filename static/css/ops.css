@@ -1,0 +1,219 @@
+/* 上海局客票运营管理系统 - 样式 */
+
+/* 全局样式 */
+:root {
+    --ops-primary: #1B2A3D;
+    --ops-accent: #2E86DE;
+    --ops-bg: #F8F9FC;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--ops-bg);
+}
+
+/* 顶部导航 */
+.ops-navbar {
+    background: linear-gradient(135deg, #1B2A3D 0%, #0F1A2B 100%);
+    padding: 0.75rem 1rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* 侧边栏 */
+.sidebar {
+    min-height: calc(100vh - 56px);
+    padding: 0;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.sidebar .nav-link {
+    color: #333 !important;
+    padding: 0.75rem 1rem !important;
+    border-radius: 0;
+    border-left: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #f0f4f8;
+    border-left-color: var(--ops-accent);
+}
+
+.sidebar .nav-link.active {
+    background-color: #e8f0fb;
+    border-left-color: var(--ops-accent);
+    color: var(--ops-accent) !important;
+    font-weight: 500;
+}
+
+/* 主内容区 */
+.main-content {
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+/* 统计卡片 */
+.stat-card {
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+/* 卡片样式 */
+.card {
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+.card-header {
+    border-bottom: 1px solid #eee;
+    padding: 1rem 1.25rem;
+}
+
+/* 表格样式 */
+.table thead th {
+    border-bottom: 2px solid var(--ops-accent);
+    color: var(--ops-primary);
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(46, 134, 222, 0.04);
+}
+
+/* 按钮样式 */
+.btn-primary {
+    background: linear-gradient(135deg, #2E86DE 0%, #1E6BC4 100%);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #1E6BC4 0%, #1657A8 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(46, 134, 222, 0.3);
+}
+
+.btn-outline-primary {
+    color: var(--ops-accent);
+    border-color: var(--ops-accent);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--ops-accent);
+    border-color: var(--ops-accent);
+}
+
+/* 表单样式 */
+.form-control:focus, .form-select:focus {
+    border-color: var(--ops-accent);
+    box-shadow: 0 0 0 0.2rem rgba(46, 134, 222, 0.15);
+}
+
+.form-label {
+    font-weight: 500;
+    color: #333;
+}
+
+/* 徽章样式 */
+.badge {
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+}
+
+/* 登录页面样式 */
+.ops-login-bg {
+    background: linear-gradient(135deg, #1B2A3D 0%, #0F1A2B 100%);
+    min-height: 100vh;
+}
+
+/* 分页样式 */
+.pagination .page-link {
+    color: var(--ops-primary);
+    border-color: #ddd;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--ops-accent);
+    border-color: var(--ops-accent);
+}
+
+.pagination .page-link:hover {
+    background-color: #f0f4f8;
+    border-color: var(--ops-accent);
+    color: var(--ops-accent);
+}
+
+/* 面包屑 */
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin: 0;
+}
+
+.breadcrumb-item a {
+    color: var(--ops-accent);
+    text-decoration: none;
+}
+
+.breadcrumb-item.active {
+    color: #666;
+}
+
+/* 列表组样式 */
+.list-group-item {
+    border-left: none;
+    border-right: none;
+    padding: 0.75rem 1rem;
+}
+
+.list-group-item:first-child {
+    border-top: none;
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .sidebar {
+        min-height: auto;
+        margin-bottom: 1rem;
+    }
+    
+    .main-content {
+        padding-top: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+    }
+}

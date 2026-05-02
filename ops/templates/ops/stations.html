@@ -1,0 +1,101 @@
+{% extends "ops/base.html" %}
+
+{% block title %}站点管理 - 运营管理系统{% endblock %}
+
+{% block content %}
+<div class="py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0"><i class="bi bi-geo-alt me-2"></i>站点管理</h4>
+        <a href="/ops/stations/new" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>新增站点
+        </a>
+    </div>
+
+    <!-- 搜索筛选 -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="search" class="form-control" placeholder="站点名称/代码/拼音" value="{{ search }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="province" class="form-select">
+                        <option value="">全部省份</option>
+                        {% for p in provinces %}
+                        <option value="{{ p }}" {{ 'selected' if current_province == p else '' }}>{{ p }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-outline-primary me-2"><i class="bi bi-search"></i></button>
+                    <a href="/ops/stations" class="btn btn-outline-secondary">重置</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 站点列表 -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-0">站点代码</th>
+                            <th class="border-0">站点名称</th>
+                            <th class="border-0">拼音</th>
+                            <th class="border-0">城市</th>
+                            <th class="border-0">省份</th>
+                            <th class="border-0">等级</th>
+                            <th class="border-0">高铁站</th>
+                            <th class="border-0">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in stations.items %}
+                        <tr>
+                            <td class="fw-bold">{{ s.station_code }}</td>
+                            <td>{{ s.station_name }}</td>
+                            <td class="text-muted">{{ s.pinyin }}</td>
+                            <td>{{ s.city }}</td>
+                            <td>{{ s.province }}</td>
+                            <td>{{ s.station_level }}</td>
+                            <td>
+                                {% if s.is_high_speed %}
+                                <span class="badge bg-success">是</span>
+                                {% else %}
+                                <span class="badge bg-secondary">否</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="/ops/stations/{{ s.id }}/edit" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        {% if stations.pages > 1 %}
+        <div class="card-footer bg-white">
+            <nav>
+                <ul class="pagination justify-content-center mb-0">
+                    {% if stations.has_prev %}
+                    <li class="page-item"><a class="page-link" href="?search={{ search }}&province={{ current_province }}&page={{ stations.prev_num }}">上一页</a></li>
+                    {% endif %}
+                    {% for p in range(1, stations.pages + 1) %}
+                    <li class="page-item {{ 'active' if p == stations.page else '' }}"><a class="page-link" href="?search={{ search }}&province={{ current_province }}&page={{ p }}">{{ p }}</a></li>
+                    {% endfor %}
+                    {% if stations.has_next %}
+                    <li class="page-item"><a class="page-link" href="?search={{ search }}&province={{ current_province }}&page={{ stations.next_num }}">下一页</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

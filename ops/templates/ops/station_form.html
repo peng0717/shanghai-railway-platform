@@ -1,0 +1,77 @@
+{% extends "ops/base.html" %}
+
+{% block title %}{{ '编辑' if station else '新建' }}站点 - 运营管理系统{% endblock %}
+
+{% block content %}
+<div class="py-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/ops/stations">站点管理</a></li>
+            <li class="breadcrumb-item active">{{ '编辑' if station else '新建' }}站点</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">{{ '编辑' if station else '新建' }}站点</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">站点代码 <span class="text-danger">*</span></label>
+                                <input type="text" name="station_code" class="form-control" value="{{ station.station_code if station else '' }}" {{ 'readonly' if station else '' }} required maxlength="10">
+                                <div class="form-text">如：SHA、NJH等</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">站点名称 <span class="text-danger">*</span></label>
+                                <input type="text" name="station_name" class="form-control" value="{{ station.station_name if station else '' }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">拼音</label>
+                                <input type="text" name="pinyin" class="form-control" value="{{ station.pinyin if station else '' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">城市 <span class="text-danger">*</span></label>
+                                <input type="text" name="city" class="form-control" value="{{ station.city if station else '' }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">省份 <span class="text-danger">*</span></label>
+                                <select name="province" class="form-select" required>
+                                    <option value="">请选择</option>
+                                    {% for p in provinces %}
+                                    <option value="{{ p }}" {{ 'selected' if station and station.province == p else '' }}>{{ p }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">站点等级</label>
+                                <select name="station_level" class="form-select">
+                                    <option value="特等" {{ 'selected' if station and station.station_level == '特等' else '' }}>特等站</option>
+                                    <option value="一等" {{ 'selected' if station and station.station_level == '一等' else '' }}>一等站</option>
+                                    <option value="二等" {{ 'selected' if station and station.station_level == '二等' else '' }}>二等站</option>
+                                    <option value="三等" {{ 'selected' if station and station.station_level == '三等' else '' }}>三等站</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input type="checkbox" name="is_high_speed" class="form-check-input" id="isHighSpeed" value="1" {{ 'checked' if not station or station.is_high_speed else '' }}>
+                                    <label class="form-check-label" for="isHighSpeed">高铁站</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg me-1"></i>保存
+                            </button>
+                            <a href="/ops/stations" class="btn btn-outline-secondary ms-2">取消</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 上海局客票运营管理系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="/static/css/ops.css" rel="stylesheet">
+</head>
+<body class="ops-login-bg">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="container mt-3">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <div class="container">
+        <div class="row justify-content-center align-items-center min-vh-100">
+            <div class="col-md-5 col-lg-4">
+                <div class="card shadow-lg border-0">
+                    <div class="card-body p-5">
+                        <div class="text-center mb-4">
+                            <svg viewBox="0 0 40 40" width="56" height="56" class="mb-3">
+                                <circle cx="20" cy="20" r="19" fill="#C4161C" stroke="none"/>
+                                <path d="M20 6 L12 28 L16 28 L20 16 L24 28 L28 28 Z" fill="white"/>
+                                <rect x="10" y="29" width="20" height="3" rx="1" fill="white"/>
+                            </svg>
+                            <h4 class="mb-1">运营管理系统</h4>
+                            <p class="text-muted small">上海铁路局客票系统</p>
+                        </div>
+                        
+                        <form method="POST">
+                            <div class="mb-4">
+                                <label class="form-label">用户名</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                    <input type="text" name="username" class="form-control" required autofocus placeholder="请输入用户名">
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">密码</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                    <input type="password" name="password" class="form-control" required placeholder="请输入密码">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-2">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>登录
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="/" class="text-decoration-none text-white-50">
+                        <i class="bi bi-arrow-left me-1"></i>返回客票系统
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

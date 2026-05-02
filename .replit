@@ -1,0 +1,14 @@
+run = "python app.py"
+language = "python3"
+entrypoint = "app.py"
+
+[ports]
+localPort = 5000
+externalPort = 80
+
+[nix]
+channel = "stable-22_11"
+
+[deployment]
+run = ["python", "app.py"]
+deploymentTarget = "cloudrun"

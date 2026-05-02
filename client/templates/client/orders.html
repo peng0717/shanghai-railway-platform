@@ -1,0 +1,131 @@
+{% extends "client/base.html" %}
+
+{% block title %}我的订单 - 上海局铁路客票系统{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h4 class="mb-4"><i class="bi bi-receipt me-2"></i>我的订单</h4>
+
+    <!-- 筛选 -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body py-3">
+            <div class="btn-group" role="group">
+                <a href="/orders" class="btn btn-sm {{ 'btn-primary' if not status_filter else 'btn-outline-primary' }}">全部订单</a>
+                <a href="/orders?status=unpaid" class="btn btn-sm {{ 'btn-primary' if status_filter == 'unpaid' else 'btn-outline-primary' }}">待支付</a>
+                <a href="/orders?status=paid" class="btn btn-sm {{ 'btn-primary' if status_filter == 'paid' else 'btn-outline-primary' }}">已支付</a>
+                <a href="/orders?status=used" class="btn btn-sm {{ 'btn-primary' if status_filter == 'used' else 'btn-outline-primary' }}">已出行</a>
+                <a href="/orders?status=refunded" class="btn btn-sm {{ 'btn-primary' if status_filter == 'refunded' else 'btn-outline-primary' }}">已退票</a>
+                <a href="/orders?status=cancelled" class="btn btn-sm {{ 'btn-primary' if status_filter == 'cancelled' else 'btn-outline-primary' }}">已取消</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 订单列表 -->
+    {% if orders %}
+    <div class="orders-list">
+        {% for order in orders %}
+        <div class="order-card card border-0 shadow-sm mb-3">
+            <div class="card-body p-0">
+                <!-- 订单头部 -->
+                <div class="order-header p-3 border-bottom bg-light">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <span class="text-muted small">订单号：</span>
+                            <span class="order-no">{{ order.order_no }}</span>
+                        </div>
+                        <div class="col-md-4">
+                            <span class="text-muted small">下单时间：</span>
+                            <span>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <span class="badge bg-{{ 'warning' if order.status == 'unpaid' else 'success' if order.status == 'paid' else 'secondary' if order.status == 'used' else 'danger' if order.status in ['refunded', 'cancelled'] else 'info' }}">
+                                {{ '待支付' if order.status == 'unpaid' else '已支付' if order.status == 'paid' else '已出行' if order.status == 'used' else '已退票' if order.status == 'refunded' else '已取消' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 订单详情 -->
+                <div class="order-content p-3">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="train-route">
+                                <span class="train-badge me-2">{{ order.train.train_code }}</span>
+                                <span class="badge bg-{{ 'primary' if order.train.train_type == '高铁' else 'info' if order.train.train_type == '动车' else 'secondary' }}">{{ order.train.train_type }}</span>
+                            </div>
+                            <div class="route-info mt-2">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="time-box">{{ order.departure_time }}</span>
+                                    <span class="mx-3 text-muted"><i class="bi bi-arrow-right"></i></span>
+                                    <span class="time-box">{{ order.arrival_time }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between text-muted small">
+                                    <span>{{ order.from_station.station_name }}</span>
+                                    <span>{{ order.to_station.station_name }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 text-center border-start border-end">
+                            <div class="text-muted small">出发日期</div>
+                            <div class="date-box">{{ order.departure_date }}</div>
+                            <div class="text-muted small mt-1">{{ order.seat_type.name }}</div>
+                            <div>{{ order.car_number }}车 {{ order.seat_number }}</div>
+                        </div>
+                        <div class="col-md-3 text-end">
+                            <div class="price-display">¥{{ order.price }}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 订单操作 -->
+                <div class="order-actions p-2 border-top bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="passenger-info small">
+                            <i class="bi bi-person me-1"></i>
+                            {{ order.passenger_name }} {{ order.passenger_id_card[-4:] }}
+                        </div>
+                        <div class="action-buttons">
+                            {% if order.status == 'unpaid' %}
+                            <a href="/order/{{ order.id }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye me-1"></i>查看
+                            </a>
+                            <form method="POST" action="/order/{{ order.id }}/cancel" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-secondary" onclick="return confirm('确定要取消订单吗？')">
+                                    <i class="bi bi-x-circle me-1"></i>取消
+                                </button>
+                            </form>
+                            {% elif order.status == 'paid' %}
+                            <a href="/order/{{ order.id }}" class="btn btn-sm btn-primary">
+                                <i class="bi bi-ticket me-1"></i>查看详情
+                            </a>
+                            <form method="POST" action="/order/{{ order.id }}/refund" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('确定要退票吗？退票将收取一定手续费')">
+                                    <i class="bi bi-arrow-return-left me-1"></i>退票
+                                </button>
+                            </form>
+                            {% else %}
+                            <a href="/order/{{ order.id }}" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-eye me-1"></i>查看
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-inbox text-muted display-4"></i>
+            <h5 class="mt-3 text-muted">暂无订单</h5>
+            <p class="text-muted">快去选购车票吧</p>
+            <a href="/search" class="btn btn-primary">
+                <i class="bi bi-search me-2"></i>查询车次
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

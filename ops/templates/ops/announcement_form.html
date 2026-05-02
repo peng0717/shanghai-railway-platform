@@ -1,0 +1,54 @@
+{% extends "ops/base.html" %}
+
+{% block title %}{{ '编辑' if announcement else '发布' }}公告 - 运营管理系统{% endblock %}
+
+{% block content %}
+<div class="py-4">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/ops/announcements">公告管理</a></li>
+            <li class="breadcrumb-item active">{{ '编辑' if announcement else '发布' }}公告</li>
+        </ol>
+    </nav>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white">
+            <h6 class="mb-0">{{ '编辑' if announcement else '发布' }}公告</h6>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <div class="mb-3">
+                    <label class="form-label">公告标题 <span class="text-danger">*</span></label>
+                    <input type="text" name="title" class="form-control" value="{{ announcement.title if announcement else '' }}" required>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">公告类型</label>
+                        <select name="type" class="form-select">
+                            <option value="notice" {{ 'selected' if announcement and announcement.type == 'notice' else '' }}>通知</option>
+                            <option value="announcement" {{ 'selected' if announcement and announcement.type == 'announcement' else '' }}>公告</option>
+                            <option value="cancel" {{ 'selected' if announcement and announcement.type == 'cancel' else '' }}>停运</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check mt-4">
+                            <input type="checkbox" name="is_active" class="form-check-input" id="isActive" value="1" {{ 'checked' if not announcement or announcement.is_active else '' }}>
+                            <label class="form-check-label" for="isActive">立即发布</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">公告内容</label>
+                    <textarea name="content" class="form-control" rows="6">{{ announcement.content if announcement else '' }}</textarea>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1"></i>保存
+                    </button>
+                    <a href="/ops/announcements" class="btn btn-outline-secondary ms-2">取消</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,3 @@
+from flask import Blueprint
+
+client_bp = Blueprint('client', __name__)

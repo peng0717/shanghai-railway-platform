@@ -1,0 +1,128 @@
+{% extends "ops/base.html" %}
+
+{% block title %}用户管理 - 运营管理系统{% endblock %}
+
+{% block content %}
+<div class="py-4">
+    <h4 class="mb-4"><i class="bi bi-people me-2"></i>用户管理</h4>
+
+    <!-- 搜索 -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="search" class="form-control" placeholder="用户名/姓名/手机" value="{{ request.args.get('search', '') }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="type" class="form-select">
+                        <option value="">全部类型</option>
+                        <option value="admin" {{ 'selected' if request.args.get('type') == 'admin' else '' }}>管理员</option>
+                        <option value="staff" {{ 'selected' if request.args.get('type') == 'staff' else '' }}>职工</option>
+                        <option value="passenger" {{ 'selected' if request.args.get('type') == 'passenger' else '' }}>旅客</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-outline-primary me-2"><i class="bi bi-search"></i></button>
+                    <a href="/ops/users" class="btn btn-outline-secondary">重置</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 用户列表 -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-0">用户名</th>
+                            <th class="border-0">姓名</th>
+                            <th class="border-0">手机</th>
+                            <th class="border-0">邮箱</th>
+                            <th class="border-0">类型</th>
+                            <th class="border-0">状态</th>
+                            <th class="border-0">注册时间</th>
+                            <th class="border-0">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in users.items %}
+                        <tr>
+                            <td class="fw-medium">{{ u.username }}</td>
+                            <td>{{ u.real_name or '-' }}</td>
+                            <td>{{ u.phone or '-' }}</td>
+                            <td>{{ u.email or '-' }}</td>
+                            <td>
+                                <span class="badge bg-{{ 'danger' if u.user_type == 'admin' else 'info' if u.user_type == 'staff' else 'secondary' }}">
+                                    {{ '管理员' if u.user_type == 'admin' else '职工' if u.user_type == 'staff' else '旅客' }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if u.status == 'active' %}
+                                <span class="badge bg-success">正常</span>
+                                {% else %}
+                                <span class="badge bg-danger">禁用</span>
+                                {% endif %}
+                            </td>
+                            <td class="small">{{ u.created_at.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                {% if u.user_type != 'admin' %}
+                                <button onclick="toggleUser({{ u.id }}, '{{ u.username }}', '{{ u.status }}')" 
+                                        class="btn btn-sm {{ 'btn-outline-success' if u.status == 'disabled' else 'btn-outline-warning' }}">
+                                    <i class="bi {{ 'bi-check-circle' if u.status == 'disabled' else 'bi-x-circle' }}"></i>
+                                    {{ '启用' if u.status == 'disabled' else '禁用' }}
+                                </button>
+                                {% else %}
+                                <span class="text-muted small">不可操作</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        {% if users.pages > 1 %}
+        <div class="card-footer bg-white">
+            <nav>
+                <ul class="pagination justify-content-center mb-0">
+                    {% if users.has_prev %}
+                    <li class="page-item"><a class="page-link" href="?search={{ request.args.get('search', '') }}&type={{ request.args.get('type', '') }}&page={{ users.prev_num }}">上一页</a></li>
+                    {% endif %}
+                    {% for p in range(1, users.pages + 1) %}
+                    <li class="page-item {{ 'active' if p == users.page else '' }}"><a class="page-link" href="?search={{ request.args.get('search', '') }}&type={{ request.args.get('type', '') }}&page={{ p }}">{{ p }}</a></li>
+                    {% endfor %}
+                    {% if users.has_next %}
+                    <li class="page-item"><a class="page-link" href="?search={{ request.args.get('search', '') }}&type={{ request.args.get('type', '') }}&page={{ users.next_num }}">下一页</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleUser(id, username, status) {
+    const action = status === 'active' ? '禁用' : '启用';
+    if (!confirm('确定要' + action + '用户 ' + username + ' 吗？')) return;
+    
+    fetch('/ops/users/' + id + '/toggle', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.message);
+        }
+    });
+}
+</script>
+{% endblock %}

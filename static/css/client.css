@@ -1,0 +1,302 @@
+/* 上海局铁路客票系统 - 旅客端样式 */
+
+/* 全局样式 */
+:root {
+    --primary-color: #1B3A5C;
+    --accent-color: #C4161C;
+    --bg-light: #F5F7FA;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--bg-light);
+    min-height: 100vh;
+}
+
+/* 导航栏 */
+.bg-navbar {
+    background: linear-gradient(135deg, #1B3A5C 0%, #0D2137 100%);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand .brand-text {
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.85) !important;
+    transition: all 0.3s ease;
+    padding: 0.5rem 1rem !important;
+    border-radius: 4px;
+}
+
+.nav-link:hover {
+    color: #fff !important;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-item .btn-outline-light {
+    border-color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.nav-item .btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: #fff;
+    color: #fff;
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, #1B3A5C 0%, #0D2137 50%, #1B3A5C 100%);
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+}
+
+.hero-section h1 {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* 搜索卡片 */
+.search-card {
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.search-card h5 {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* 快捷入口 */
+.quick-entry {
+    background: #fff;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    border: 1px solid #eee;
+}
+
+.quick-entry:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border-color: var(--accent-color);
+}
+
+.quick-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #1B3A5C 0%, #2E5A8C 100%);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.5rem;
+}
+
+/* 车次卡片 */
+.train-card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.train-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.train-info .train-code {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.time-info {
+    background: linear-gradient(to right, #f8f9fa, #fff, #f8f9fa);
+}
+
+.time-main {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.station-name {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.arrow-line {
+    color: var(--accent-color);
+    font-size: 1.2rem;
+}
+
+.seat-item {
+    background: #f8f9fa;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.seat-item:hover {
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.seat-item.sold-out {
+    opacity: 0.5;
+    background: #eee;
+}
+
+/* 订单卡片 */
+.order-card {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.order-no {
+    font-family: monospace;
+    color: var(--primary-color);
+}
+
+.date-box {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.price-display {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-color);
+}
+
+/* 电子客票样式 */
+.ticket-display {
+    border: 2px dashed #ddd;
+    border-radius: 12px;
+}
+
+.train-code-lg {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--primary-color);
+}
+
+.time-lg {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.station-lg {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+/* 席别卡片 */
+.seat-card {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #fff;
+}
+
+.seat-card:hover {
+    border-color: var(--accent-color) !important;
+}
+
+.price-total {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent-color);
+}
+
+/* 表格样式 */
+.table thead th {
+    border-bottom: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(27, 58, 92, 0.03);
+}
+
+/* 按钮样式 */
+.btn-primary {
+    background: linear-gradient(135deg, #1B3A5C 0%, #2E5A8C 100%);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0D2137 0%, #1B3A5C 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(27, 58, 92, 0.3);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #C4161C 0%, #A01015 100%);
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(135deg, #A01015 0%, #8A0D12 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(196, 22, 28, 0.3);
+}
+
+/* 卡片阴影 */
+.card {
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+/* 输入框样式 */
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(27, 58, 92, 0.15);
+}
+
+/* 路由线样式 */
+.route-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.route-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent-color);
+}
+
+.route-line-bar {
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(to right, var(--accent-color), #ddd);
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 2rem 0;
+    }
+    
+    .train-info, .time-info, .seat-info {
+        border-left: none !important;
+        border-right: none !important;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .time-main, .time-lg {
+        font-size: 1.2rem;
+    }
+    
+    .train-code-lg {
+        font-size: 1.8rem;
+    }
+}
