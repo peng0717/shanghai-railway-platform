@@ -160,7 +160,8 @@ def book(train_id):
         order_no = generate_order_no()
         
         # 分配座位号
-        car_number = str(random.randint(1, seat.total_count // 100))
+        max_car = max(1, seat.total_count // 100)
+        car_number = str(random.randint(1, max_car))
         seat_number = f"{car_number}{str(random.randint(1, 20)).zfill(2)}-{random.randint(1, 5)}"
         
         # 创建订单
