@@ -63,7 +63,7 @@ from ops.auth import ops_auth_bp
 app.register_blueprint(client_bp)  # 客票系统 /
 app.register_blueprint(auth_bp)    # 认证 /
 app.register_blueprint(ops_bp, url_prefix='/ops')    # 运营系统 /ops/
-app.register_blueprint(ops_auth_bp, url_prefix='/ops/auth')  # 运营系统认证
+app.register_blueprint(ops_auth_bp, url_prefix='/ops')  # 运营系统认证
 
 # 错误页面
 @app.route('/error')

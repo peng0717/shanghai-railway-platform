@@ -11,13 +11,13 @@ def ops_login_required(f):
     def decorated_function(*args, **kwargs):
         if 'ops_user_id' not in session:
             flash('请先登录', 'warning')
-            return redirect('/ops/login')
+            return redirect(url_for('ops_auth.login'))
         
         user = User.query.get(session['ops_user_id'])
         if not user or user.status == 'disabled':
             session.clear()
             flash('账号状态异常，请重新登录', 'error')
-            return redirect('/ops/login')
+            return redirect(url_for('ops_auth.login'))
         
         if user.user_type not in ['admin', 'staff']:
             flash('无权访问运营管理系统', 'error')
@@ -47,7 +47,7 @@ def log_ops_action(user_id, action, module, detail):
 def login():
     """运营系统登录"""
     if 'ops_user_id' in session:
-        return redirect('/ops/dashboard')
+        return redirect('/ops/')
     
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
@@ -55,18 +55,18 @@ def login():
         
         if not username or not password:
             flash('请输入用户名和密码', 'error')
-            return redirect('/ops/login')
+            return redirect(url_for('ops_auth.login'))
         
         user = User.query.filter_by(username=username).first()
         
         if user and user.check_password(password):
             if user.status == 'disabled':
                 flash('账号已被禁用', 'error')
-                return redirect('/ops/login')
+                return redirect(url_for('ops_auth.login'))
             
             if user.user_type not in ['admin', 'staff']:
                 flash('无权访问运营管理系统', 'error')
-                return redirect('/ops/login')
+                return redirect(url_for('ops_auth.login'))
             
             session['ops_user_id'] = user.id
             session['ops_username'] = user.username
@@ -76,7 +76,7 @@ def login():
             log_ops_action(user.id, 'login', 'auth', '运营系统登录')
             
             flash(f'欢迎回来，{user.real_name}', 'success')
-            return redirect('/ops/dashboard')
+            return redirect('/ops/')
         else:
             flash('用户名或密码错误', 'error')
     
@@ -96,4 +96,4 @@ def logout():
     session.pop('ops_user_type', None)
     
     flash('您已退出运营系统', 'success')
-    return redirect('/ops/login')
+    return redirect(url_for('ops_auth.login'))
